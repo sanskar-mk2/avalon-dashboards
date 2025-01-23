@@ -14,7 +14,10 @@ class SaleController extends Controller
      */
     public function index()
     {
-        //
+        $sales = Sale::paginate(10);
+        return Inertia::render('Sales/Index', [
+            'sales' => $sales,
+        ]);
     }
 
     /**
