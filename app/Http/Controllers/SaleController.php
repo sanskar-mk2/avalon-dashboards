@@ -14,7 +14,7 @@ class SaleController extends Controller
      */
     public function index()
     {
-        $sales = Sale::paginate(10);
+        $sales = Sale::paginate(8);
         return Inertia::render('Sales/Index', [
             'sales' => $sales,
         ]);
@@ -142,5 +142,11 @@ class SaleController extends Controller
     public function destroy(Sale $sale)
     {
         //
+    }
+
+    public function deleteAll()
+    {
+        Sale::truncate();
+        return back()->with('success', 'All sales records deleted successfully');
     }
 }
