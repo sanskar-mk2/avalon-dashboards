@@ -5,7 +5,11 @@ import { ref } from "vue";
 import Pagination from "@/Components/Pagination.vue";
 
 const props = defineProps({
-    open_orders: {
+    salesperson: {
+        type: Object,
+        default: () => ({}),
+    },
+    sales: {
         type: Object,
         default: () => ({}),
     },
@@ -24,12 +28,22 @@ const closeDeleteModal = () => {
 
 <template>
 
-    <Head title="Open Orders" />
+    <Head title="Sales" />
 
     <AuthenticatedLayout>
         <template #header>
             <h2 class="text-xl font-semibold leading-tight text-gray-800">
-                Open Orders
+                <div class="breadcrumbs text-sm">
+                    <ul>
+                        <li>
+                            <Link :href="route('dashboard')">Home</Link>
+                        </li>
+                        <li>
+                            <Link :href="route('salespeople.index')">Salespeople</Link>
+                        </li>
+                        <li>{{ salesperson.salesman_name }}</li>
+                    </ul>
+                </div>
             </h2>
         </template>
 
@@ -37,14 +51,6 @@ const closeDeleteModal = () => {
             <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
                 <div class="overflow-hidden bg-base-100 shadow-sm sm:rounded-lg">
                     <div class="p-6 ">
-                        <div class="flex justify-end gap-4 mb-4">
-                            <Link :href="route('open_orders.create')" class="btn btn-primary">
-                            Upload Open Order CSV
-                            </Link>
-                            <button @click="openDeleteModal" class="btn btn-error">
-                                Delete All Open Order Records
-                            </button>
-                        </div>
                         <div class="overflow-x-auto">
                             <table class="table table-zebra">
                                 <thead>
@@ -87,61 +93,62 @@ const closeDeleteModal = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr v-for="open_order in open_orders.data" :key="open_order.id">
-                                        <td>{{ open_order.company }}</td>
-                                        <td>{{ open_order.location }}</td>
-                                        <td>{{ open_order.order_no }}</td>
-                                        <td>{{ open_order.backorder }}</td>
-                                        <td>{{ open_order.order_date }}</td>
-                                        <td>{{ open_order.order_type }}</td>
-                                        <td>{{ open_order.customer_no }}</td>
-                                        <td>{{ open_order.customer_name }}</td>
-                                        <td>{{ open_order.customer_class }}</td>
-                                        <td>{{ open_order.brand }}</td>
-                                        <td>{{ open_order.flag }}</td>
-                                        <td>{{ open_order.salesperson }}</td>
-                                        <td>{{ open_order.invoice_no }}</td>
-                                        <td>{{ open_order.invoice_date }}</td>
-                                        <td>{{ open_order.item_no }}</td>
-                                        <td>{{ open_order.item_desc }}</td>
-                                        <td>{{ open_order.item_division }}</td>
-                                        <td>{{ open_order.inv_class }}</td>
-                                        <td>{{ open_order.qty }}</td>
-                                        <td>{{ open_order.ext_sales }}</td>
-                                        <td>{{ open_order.ext_cost }}</td>
-                                        <td>{{ open_order.period }}</td>
-                                        <td>{{ open_order.order_status }}</td>
-                                        <td>{{ open_order.advertising_source }}</td>
-                                        <td>{{ open_order.finance_co_rate }}</td>
-                                        <td>{{ open_order.price_matrix }}</td>
-                                        <td>{{ open_order.price_list_applied }}</td>
-                                        <td>{{ open_order.price_after_disc }}</td>
-                                        <td>{{ open_order.ship_to_no }}</td>
-                                        <td>{{ open_order.ship_to_name }}</td>
-                                        <td>{{ open_order.ship_to_city }}</td>
-                                        <td>{{ open_order.ship_to_state }}</td>
-                                        <td>{{ open_order.requested_ship_date }}</td>
-                                        <td>{{ open_order.customer_desire_date }}</td>
-                                        <td>{{ open_order.mfg_code }}</td>
+                                    <tr v-for="sale in sales.data" :key="sale.id">
+                                        <td>{{ sale.company }}</td>
+                                        <td>{{ sale.location }}</td>
+                                        <td>{{ sale.order_no }}</td>
+                                        <td>{{ sale.backorder }}</td>
+                                        <td>{{ sale.order_date }}</td>
+                                        <td>{{ sale.order_type }}</td>
+                                        <td>{{ sale.customer_no }}</td>
+                                        <td>{{ sale.customer_name }}</td>
+                                        <td>{{ sale.customer_class }}</td>
+                                        <td>{{ sale.brand }}</td>
+                                        <td>{{ sale.flag }}</td>
+                                        <td>{{ salesperson.salesman_name }}</td>
+                                        <td>{{ sale.invoice_no }}</td>
+                                        <td>{{ sale.invoice_date }}</td>
+                                        <td>{{ sale.item_no }}</td>
+                                        <td>{{ sale.item_desc }}</td>
+                                        <td>{{ sale.item_division }}</td>
+                                        <td>{{ sale.inv_class }}</td>
+                                        <td>{{ sale.qty }}</td>
+                                        <td>{{ sale.ext_sales }}</td>
+                                        <td>{{ sale.ext_cost }}</td>
+                                        <td>{{ sale.period }}</td>
+                                        <td>{{ sale.order_status }}</td>
+                                        <td>{{ sale.advertising_source }}</td>
+                                        <td>{{ sale.finance_co_rate }}</td>
+                                        <td>{{ sale.price_matrix }}</td>
+                                        <td>{{ sale.price_list_applied }}</td>
+                                        <td>{{ sale.price_after_disc }}</td>
+                                        <td>{{ sale.ship_to_no }}</td>
+                                        <td>{{ sale.ship_to_name }}</td>
+                                        <td>{{ sale.ship_to_city }}</td>
+                                        <td>{{ sale.ship_to_state }}</td>
+                                        <td>{{ sale.requested_ship_date }}</td>
+                                        <td>{{ sale.customer_desire_date }}</td>
+                                        <td>{{ sale.mfg_code }}</td>
                                     </tr>
                                 </tbody>
                             </table>
                         </div>
                         <div class="mt-2 flex justify-between w-full items-center">
                             <div class="text-base-content text-md">
-                                Showing {{ open_orders.from }} to {{ open_orders.to }} of {{ open_orders.total }}
-                                results
+                                Showing {{ sales.from }} to {{ sales.to }} of {{ sales.total }} results
                             </div>
-                            <Pagination :links="open_orders.links" />
+                            <Pagination :links="sales.links" />
                         </div>
 
                         <!-- Delete Confirmation Modal -->
                         <dialog :open="showDeleteModal" class="modal">
                             <div class="modal-box border-2 border-base-300">
                                 <h3 class="text-lg font-bold">Confirm Deletion</h3>
-                                <p class="py-4">Are you sure you want to delete all open order records? This action cannot be undone.</p>
+                                <p class="py-4">Are you sure you want to delete all sales records? This action cannot be
+                                    undone.
+                                </p>
                                 <div class="modal-action">
-                                    <Link :href="route('open_orders.deleteAll')" method="delete" as="button"
+                                    <Link :href="route('sales.deleteAll')" method="delete" as="button"
                                         class="btn btn-error" preserve-scroll @click="closeDeleteModal">
                                     Delete All
                                     </Link>

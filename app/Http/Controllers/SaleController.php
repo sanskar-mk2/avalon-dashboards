@@ -14,7 +14,7 @@ class SaleController extends Controller
      */
     public function index()
     {
-        $sales = Sale::paginate(8);
+        $sales = Sale::with('salespersonModel', 'locationModel')->paginate(8);
         return Inertia::render('Sales/Index', [
             'sales' => $sales,
         ]);
@@ -109,7 +109,7 @@ class SaleController extends Controller
         // Delete temporary file
         unlink(storage_path('app/private/' . $path));
 
-        return back()->with('success', 'Sales records imported successfully');
+        return redirect()->route('sales.index')->with('success', 'Sales records imported successfully');
     }
 
     /**

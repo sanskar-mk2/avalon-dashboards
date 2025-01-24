@@ -2,38 +2,9 @@
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import { Head } from "@inertiajs/vue3";
 import { useForm } from "@inertiajs/vue3";
-import { onUpdated, ref } from "vue";
 
 const form = useForm({
     file: null,
-});
-
-const showSuccess = ref(false);
-const showError = ref(false);
-const flashMessage = ref('');
-
-const props = defineProps({
-    flash: {
-        type: Object,
-        default: () => ({}),
-    },
-});
-
-onUpdated(() => {
-    if (props.flash.success) {
-        showSuccess.value = true;
-        flashMessage.value = props.flash.success;
-        setTimeout(() => {
-            showSuccess.value = false;
-        }, 3000);
-    }
-    if (props.flash.error) {
-        showError.value = true;
-        flashMessage.value = props.flash.error;
-        setTimeout(() => {
-            showError.value = false;
-        }, 3000);
-    }
 });
 
 const handleFileUpload = (e) => {
@@ -41,7 +12,7 @@ const handleFileUpload = (e) => {
 };
 
 const submit = () => {
-    form.post(route("sales.store"), {
+    form.post(route("locations.store"), {
         preserveScroll: true,
         onSuccess: () => {
             form.reset();
@@ -52,12 +23,12 @@ const submit = () => {
 
 <template>
 
-    <Head title="Sales" />
+    <Head title="Locations" />
 
     <AuthenticatedLayout>
         <template #header>
             <h2 class="text-xl font-semibold leading-tight text-gray-800">
-                Sales
+                Locations
             </h2>
         </template>
 
@@ -69,7 +40,7 @@ const submit = () => {
                             <div class="grid w-full max-w-sm items-center gap-1.5">
                                 <label class="form-control w-full max-w-xs">
                                     <div class="label">
-                                        <span class="label-text">Sales CSV File</span>
+                                        <span class="label-text">Locations CSV File</span>
                                     </div>
                                     <input type="file" @input="handleFileUpload" accept=".csv"
                                         class="file-input file-input-bordered w-full max-w-xs" />

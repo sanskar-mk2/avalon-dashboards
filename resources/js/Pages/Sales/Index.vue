@@ -1,40 +1,25 @@
 <script setup>
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import { Head, Link } from "@inertiajs/vue3";
-import { onUpdated, ref } from "vue";
+import { ref } from "vue";
 import Pagination from "@/Components/Pagination.vue";
 
-const showSuccess = ref(false);
-const showError = ref(false);
-const flashMessage = ref('');
-
 const props = defineProps({
-    flash: {
-        type: Object,
-        default: () => ({}),
-    },
     sales: {
         type: Object,
         default: () => ({}),
     },
 });
 
-onUpdated(() => {
-    if (props.flash.success) {
-        showSuccess.value = true;
-        flashMessage.value = props.flash.success;
-        setTimeout(() => {
-            showSuccess.value = false;
-        }, 3000);
-    }
-    if (props.flash.error) {
-        showError.value = true;
-        flashMessage.value = props.flash.error;
-        setTimeout(() => {
-            showError.value = false;
-        }, 3000);
-    }
-});
+const showDeleteModal = ref(false);
+
+const openDeleteModal = () => {
+    showDeleteModal.value = true;
+};
+
+const closeDeleteModal = () => {
+    showDeleteModal.value = false;
+};
 </script>
 
 <template>
@@ -42,18 +27,14 @@ onUpdated(() => {
     <Head title="Sales" />
 
     <AuthenticatedLayout>
-        <div class="toast toast-top toast-end" v-if="showSuccess || showError">
-            <div class="alert alert-success" v-if="showSuccess">
-                <span>{{ flashMessage }}</span>
-            </div>
-            <div class="alert alert-error" v-if="showError">
-                <span>{{ flashMessage }}</span>
-            </div>
-        </div>
-
         <template #header>
             <h2 class="text-xl font-semibold leading-tight text-gray-800">
-                Sales
+                <div class="breadcrumbs text-sm">
+                    <ul>
+                        <li><Link :href="route('dashboard')">Home</Link></li>
+                        <li>Sales</li>
+                    </ul>
+                </div>
             </h2>
         </template>
 
@@ -63,11 +44,11 @@ onUpdated(() => {
                     <div class="p-6 ">
                         <div class="flex justify-end gap-4 mb-4">
                             <Link :href="route('sales.create')" class="btn btn-primary">
-                                Upload Sales CSV
+                            Upload Sales CSV
                             </Link>
-                            <Link :href="route('sales.deleteAll')" method="delete" as="button" class="btn btn-error" preserve-scroll>
+                            <button @click="openDeleteModal" class="btn btn-error">
                                 Delete All Sales Records
-                            </Link>
+                            </button>
                         </div>
                         <div class="overflow-x-auto">
                             <table class="table table-zebra">
@@ -113,7 +94,16 @@ onUpdated(() => {
                                 <tbody>
                                     <tr v-for="sale in sales.data" :key="sale.id">
                                         <td>{{ sale.company }}</td>
-                                        <td>{{ sale.location }}</td>
+                                        <td>
+                                            <template v-if="sale.location_model">
+                                                <Link class="link" :href="route('locations.show', sale.location_model.id)">
+                                                {{ sale.location_model.location_abbreviation }}
+                                                </Link>
+                                            </template>
+                                            <template v-else>
+                                                {{ sale.location }}
+                                            </template>
+                                        </td>
                                         <td>{{ sale.order_no }}</td>
                                         <td>{{ sale.backorder }}</td>
                                         <td>{{ sale.order_date }}</td>
@@ -123,7 +113,17 @@ onUpdated(() => {
                                         <td>{{ sale.customer_class }}</td>
                                         <td>{{ sale.brand }}</td>
                                         <td>{{ sale.flag }}</td>
-                                        <td>{{ sale.salesperson }}</td>
+                                        <td>
+                                            <template v-if="sale.salesperson_model">
+                                                <Link class="link"
+                                                    :href="route('salespeople.show', sale.salesperson_model.id)">
+                                                {{ sale.salesperson_model.salesman_name }}
+                                                </Link>
+                                            </template>
+                                            <template v-else>
+                                                {{ sale.salesperson }}
+                                            </template>
+                                        </td>
                                         <td>{{ sale.invoice_no }}</td>
                                         <td>{{ sale.invoice_date }}</td>
                                         <td>{{ sale.item_no }}</td>
@@ -157,6 +157,23 @@ onUpdated(() => {
                             </div>
                             <Pagination :links="sales.links" />
                         </div>
+
+                        <!-- Delete Confirmation Modal -->
+                        <dialog :open="showDeleteModal" class="modal">
+                            <div class="modal-box border-2 border-base-300">
+                                <h3 class="text-lg font-bold">Confirm Deletion</h3>
+                                <p class="py-4">Are you sure you want to delete all sales records? This action cannot be
+                                    undone.
+                                </p>
+                                <div class="modal-action">
+                                    <Link :href="route('sales.deleteAll')" method="delete" as="button"
+                                        class="btn btn-error" preserve-scroll @click="closeDeleteModal">
+                                    Delete All
+                                    </Link>
+                                    <button class="btn" @click="closeDeleteModal">Cancel</button>
+                                </div>
+                            </div>
+                        </dialog>
                     </div>
                 </div>
             </div>

@@ -2,38 +2,9 @@
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import { Head } from "@inertiajs/vue3";
 import { useForm } from "@inertiajs/vue3";
-import { onUpdated, ref } from "vue";
 
 const form = useForm({
     file: null,
-});
-
-const showSuccess = ref(false);
-const showError = ref(false);
-const flashMessage = ref('');
-
-const props = defineProps({
-    flash: {
-        type: Object,
-        default: () => ({}),
-    },
-});
-
-onUpdated(() => {
-    if (props.flash.success) {
-        showSuccess.value = true;
-        flashMessage.value = props.flash.success;
-        setTimeout(() => {
-            showSuccess.value = false;
-        }, 3000);
-    }
-    if (props.flash.error) {
-        showError.value = true;
-        flashMessage.value = props.flash.error;
-        setTimeout(() => {
-            showError.value = false;
-        }, 3000);
-    }
 });
 
 const handleFileUpload = (e) => {
@@ -55,15 +26,6 @@ const submit = () => {
     <Head title="Salespeople" />
 
     <AuthenticatedLayout>
-        <div class="toast toast-top toast-end" v-if="showSuccess || showError">
-            <div class="alert alert-success" v-if="showSuccess">
-                <span>{{ flashMessage }}</span>
-            </div>
-            <div class="alert alert-error" v-if="showError">
-                <span>{{ flashMessage }}</span>
-            </div>
-        </div>
-
         <template #header>
             <h2 class="text-xl font-semibold leading-tight text-gray-800">
                 Salespeople

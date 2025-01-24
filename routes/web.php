@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\LocationController;
 use App\Http\Controllers\OpenOrderController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SaleController;
@@ -31,6 +32,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('/open_orders', [OpenOrderController::class, 'deleteAll'])->name('open_orders.deleteAll');
     Route::resource('salespeople', SalespersonController::class);
     Route::delete('/salespeople', [SalespersonController::class, 'deleteAll'])->name('salespeople.deleteAll');
+    Route::resource('locations', LocationController::class);
+    Route::delete('/locations', [LocationController::class, 'deleteAll'])->name('locations.deleteAll');
 });
 
 require __DIR__ . '/auth.php';

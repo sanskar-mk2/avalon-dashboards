@@ -5,7 +5,7 @@ import Pagination from "@/Components/Pagination.vue";
 import { ref } from "vue";
 
 const props = defineProps({
-    salespeople: {
+    locations: {
         type: Object,
         default: () => ({}),
     },
@@ -24,7 +24,7 @@ const closeDeleteModal = () => {
 
 <template>
 
-    <Head title="Salespeople" />
+    <Head title="Locations" />
 
     <AuthenticatedLayout>
         <template #header>
@@ -32,7 +32,7 @@ const closeDeleteModal = () => {
                 <div class="breadcrumbs text-sm">
                     <ul>
                         <li><Link :href="route('dashboard')">Home</Link></li>
-                        <li>Salespeople</li>
+                        <li>Locations</li>
                     </ul>
                 </div>
             </h2>
@@ -43,58 +43,56 @@ const closeDeleteModal = () => {
                 <div class="overflow-hidden bg-base-100 shadow-sm sm:rounded-lg">
                     <div class="p-6 ">
                         <div class="flex justify-end gap-4 mb-4">
-                            <Link :href="route('salespeople.create')" class="btn btn-primary">
-                            Upload Salesperson CSV
+                            <Link :href="route('locations.create')" class="btn btn-primary">
+                            Upload Location CSV
                             </Link>
                             <button @click="openDeleteModal" class="btn btn-error">
-                                Delete All Salesperson Records
+                                Delete All Location Records
                             </button>
                         </div>
                         <div class="overflow-x-auto">
                             <table class="table table-zebra">
                                 <thead>
                                     <tr>
-                                        <th>Company No</th>
-                                        <th>Salesman No</th>
-                                        <th>Salesman Name</th>
+                                        <th>Location</th>
+                                        <th>Location Name</th>
+                                        <th>Location Abbreviation</th>
                                         <th>Sales</th>
                                         <th>Open Orders</th>
-                                        <th>As Of Date</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr v-for="salesperson in salespeople.data" :key="salesperson.id">
-                                        <td>{{ salesperson.company_no }}</td>
-                                        <td>{{ salesperson.salesman_no }}</td>
+                                    <tr v-for="location in locations.data" :key="location.id">
+                                        <td>{{ location.location }}</td>
+                                        <td>{{ location.location_name }}</td>
                                         <td>
-                                            <Link class="link" :href="route('salespeople.show', salesperson.id)">
-                                                {{ salesperson.salesman_name }}
+                                            <Link class="link" :href="route('locations.show', location.id)">
+                                                {{ location.location_abbreviation }}
                                             </Link>
                                         </td>
-                                        <td>{{ salesperson.sales_count }}</td>
-                                        <td>{{ salesperson.open_orders_count }}</td>
-                                        <td>{{ salesperson.as_of_date }}</td>
+                                        <td>{{ location.sales_count }}</td>
+                                        <td>{{ location.open_orders_count }}</td>
                                     </tr>
                                 </tbody>
                             </table>
                         </div>
                         <div class="mt-2 flex justify-between w-full items-center">
                             <div class="text-base-content text-md">
-                                Showing {{ salespeople.from }} to {{ salespeople.to }} of {{ salespeople.total }}
+                                Showing {{ locations.from }} to {{ locations.to }} of {{ locations.total }}
                                 results
                             </div>
-                            <Pagination :links="salespeople.links" />
+                            <Pagination :links="locations.links" />
                         </div>
 
                         <!-- Delete Confirmation Modal -->
                         <dialog :open="showDeleteModal" class="modal">
                             <div class="modal-box border-2 border-base-300">
                                 <h3 class="text-lg font-bold">Confirm Deletion</h3>
-                                <p class="py-4">Are you sure you want to delete all salesperson records? This action
+                                <p class="py-4">Are you sure you want to delete all location records? This action
                                     cannot be
                                     undone.</p>
                                 <div class="modal-action">
-                                    <Link :href="route('salespeople.deleteAll')" method="delete" as="button"
+                                    <Link :href="route('locations.deleteAll')" method="delete" as="button"
                                         class="btn btn-error" preserve-scroll @click="closeDeleteModal">
                                     Delete All
                                     </Link>

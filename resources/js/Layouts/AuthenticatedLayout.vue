@@ -7,7 +7,7 @@ import NavLink from '@/Components/NavLink.vue';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 import { Link } from '@inertiajs/vue3';
 import { themeChange } from 'theme-change'
-
+import Toast from '@/Components/Toast.vue';
 
 const showingNavigationDropdown = ref(false);
 
@@ -174,6 +174,7 @@ onMounted(() => {
 
             <!-- Page Content -->
             <main>
+                <Toast />
                 <slot />
             </main>
         </div>
