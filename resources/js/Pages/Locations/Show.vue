@@ -32,8 +32,8 @@ const closeDeleteModal = () => {
 
     <AuthenticatedLayout>
         <template #header>
-            <h2 class="text-xl font-semibold leading-tight text-gray-800">
-                <div class="breadcrumbs text-sm">
+            <h2 class="text-xl font-semibold leading-tight">
+                <div class="breadcrumbs text-sm text-base-content">
                     <ul>
                         <li>
                             <Link :href="route('dashboard')">Home</Link>

@@ -34,7 +34,7 @@ return new class extends Migration
             $table->decimal('qty', 10, 2)->nullable();
             $table->decimal('ext_sales', 12, 2)->nullable();
             $table->decimal('ext_cost', 12, 2)->nullable();
-            $table->integer('period')->nullable();
+            $table->date('period')->nullable();
             $table->string('order_status')->nullable();
             $table->string('advertising_source')->nullable();
             $table->decimal('finance_co_rate', 8, 2)->nullable();

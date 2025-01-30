@@ -86,7 +86,7 @@ class OpenOrderController extends Controller
                     'qty' => $fields[18] ?? null,
                     'ext_sales' => $fields[19] ?? null,
                     'ext_cost' => $fields[20] ?? null,
-                    'period' => $fields[21] ?? null,
+                    'period' => $fields[21] ? date('Y-m-d', strtotime($fields[21] . '01')) : null,
                     'order_status' => $sanitizeString($fields[22] ?? null),
                     'advertising_source' => $sanitizeString($fields[23] ?? null),
                     'finance_co_rate' => $fields[24] ?? null,

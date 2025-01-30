@@ -43,7 +43,7 @@ class SaleController extends Controller
         ]);
 
         $path = $request->file('file')->store('temp');
-        
+
         // Set UTF-8 encoding for reading CSV
         $collection = (new FastExcel)
             ->configureCsv(',')
@@ -54,9 +54,9 @@ class SaleController extends Controller
         foreach ($chunks as $chunk) {
             $records = $chunk->map(function ($row) {
                 $fields = array_values($row);
-                
+
                 // Ensure all string values are UTF-8 encoded
-                $sanitizeString = function($value) {
+                $sanitizeString = function ($value) {
                     if (is_string($value)) {
                         // Convert to UTF-8 if not already and remove invalid sequences
                         return mb_convert_encoding($value, 'UTF-8', 'UTF-8');
@@ -86,7 +86,7 @@ class SaleController extends Controller
                     'qty' => $fields[18] ?? null,
                     'ext_sales' => $fields[19] ?? null,
                     'ext_cost' => $fields[20] ?? null,
-                    'period' => $fields[21] ?? null,
+                    'period' => $fields[21] ? date('Y-m-d', strtotime($fields[21] . '01')) : null,
                     'order_status' => $sanitizeString($fields[22] ?? null),
                     'advertising_source' => $sanitizeString($fields[23] ?? null),
                     'finance_co_rate' => $fields[24] ?? null,
