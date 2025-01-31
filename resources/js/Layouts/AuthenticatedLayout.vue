@@ -36,6 +36,18 @@ onMounted(() => {
                                 <NavLink :href="route('dashboard')" :active="route().current('dashboard')">
                                     Dashboard
                                 </NavLink>
+                                <NavLink :href="route('sales.index')" :active="route().current('sales.index')">
+                                    Sales
+                                </NavLink>
+                                <NavLink :href="route('open_orders.index')" :active="route().current('open_orders.index')">
+                                    Open Orders
+                                </NavLink>
+                                <NavLink :href="route('locations.index')" :active="route().current('locations.index')">
+                                    Locations
+                                </NavLink>
+                                <NavLink :href="route('salespeople.index')" :active="route().current('salespeople.index')">
+                                    Salespeople
+                                </NavLink>
                             </div>
                         </div>
 
@@ -106,6 +118,18 @@ onMounted(() => {
                         <ResponsiveNavLink :href="route('dashboard')" :active="route().current('dashboard')">
                             Dashboard
                         </ResponsiveNavLink>
+                        <ResponsiveNavLink :href="route('sales.index')" :active="route().current('sales.index')">
+                            Sales
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink :href="route('open_orders.index')" :active="route().current('open_orders.index')">
+                            Open Orders
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink :href="route('locations.index')" :active="route().current('locations.index')">
+                            Locations
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink :href="route('salespeople.index')" :active="route().current('salespeople.index')">
+                            Salespeople
+                        </ResponsiveNavLink>
                     </div>
 
                     <!-- Responsive Settings Options -->
@@ -133,9 +157,9 @@ onMounted(() => {
 
             <!-- Page Heading -->
             <header class="bg-base-100 shadow" v-if="$slots.header">
-                <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 flex justify-between">
+                <div class="mx-auto max-w-7xl px-4 py-2 sm:px-6 lg:px-8 flex flex-wrap sm:flex-nowrap items-center justify-between">
                     <slot name="header" />
-                    <select class="self-center select select-primary max-w-xs" data-choose-theme>
+                    <select class="ml-auto select select-primary w-32 select-sm sm:select-md text-xs sm:text-sm" data-choose-theme>
                         <option value="light">Light</option>
                         <option value="dark">Dark</option>
                         <option value="cupcake">Cupcake</option>

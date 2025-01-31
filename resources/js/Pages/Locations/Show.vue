@@ -1,7 +1,6 @@
 <script setup>
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import { Head, Link } from "@inertiajs/vue3";
-import { ref } from "vue";
 import Pagination from "@/Components/Pagination.vue";
 
 const props = defineProps({
@@ -14,26 +13,15 @@ const props = defineProps({
         default: () => ({}),
     },
 });
-
-const showDeleteModal = ref(false);
-
-const openDeleteModal = () => {
-    showDeleteModal.value = true;
-};
-
-const closeDeleteModal = () => {
-    showDeleteModal.value = false;
-};
 </script>
 
 <template>
-
     <Head title="Sales" />
 
     <AuthenticatedLayout>
         <template #header>
-            <h2 class="text-xl font-semibold leading-tight">
-                <div class="breadcrumbs text-sm text-base-content">
+            <h2 class="text-lg sm:text-xl font-semibold leading-tight">
+                <div class="breadcrumbs text-xs sm:text-sm text-base-content">
                     <ul>
                         <li>
                             <Link :href="route('dashboard')">Home</Link>
@@ -47,12 +35,12 @@ const closeDeleteModal = () => {
             </h2>
         </template>
 
-        <div class="py-12">
-            <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
+        <div class="py-8 sm:py-12">
+            <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div class="overflow-hidden bg-base-100 shadow-sm sm:rounded-lg">
-                    <div class="p-6 ">
+                    <div class="p-4 sm:p-6">
                         <div class="overflow-x-auto">
-                            <table class="table table-zebra">
+                            <table class="table table-zebra text-xs sm:text-sm">
                                 <thead>
                                     <tr>
                                         <th>Company</th>
@@ -144,28 +132,11 @@ const closeDeleteModal = () => {
                             </table>
                         </div>
                         <div class="mt-2 flex justify-between w-full items-center">
-                            <div class="text-base-content text-md">
+                            <div class="text-base-content text-xs sm:text-sm">
                                 Showing {{ sales.from }} to {{ sales.to }} of {{ sales.total }} results
                             </div>
                             <Pagination :links="sales.links" />
                         </div>
-
-                        <!-- Delete Confirmation Modal -->
-                        <dialog :open="showDeleteModal" class="modal">
-                            <div class="modal-box border-2 border-base-300">
-                                <h3 class="text-lg font-bold">Confirm Deletion</h3>
-                                <p class="py-4">Are you sure you want to delete all sales records? This action cannot be
-                                    undone.
-                                </p>
-                                <div class="modal-action">
-                                    <Link :href="route('sales.deleteAll')" method="delete" as="button"
-                                        class="btn btn-error" preserve-scroll @click="closeDeleteModal">
-                                    Delete All
-                                    </Link>
-                                    <button class="btn" @click="closeDeleteModal">Cancel</button>
-                                </div>
-                            </div>
-                        </dialog>
                     </div>
                 </div>
             </div>

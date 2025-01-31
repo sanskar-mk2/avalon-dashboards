@@ -183,23 +183,23 @@ onMounted(() => {
                 <DashboardCards :cards_data="cards_data" />
 
                 <!-- Location Charts Section -->
-                <div class="flex mt-10 gap-8">
-                    <div class="basis-2/3 card bg-base-100 p-4">
-                        <h2 class="text-xl font-semibold mb-4">Sales By Location</h2>
+                <div class="flex justify-center flex-wrap sm:flex-nowrap mt-10 gap-8">
+                    <div class="sm:basis-2/3 w-full mx-4 sm:mx-0 card bg-base-100 p-4">
+                        <h2 class="text-lg sm:text-xl font-semibold mb-4">Sales By Location</h2>
                         <canvas ref="locationChartRef"></canvas>
                     </div>
-                    <div class="basis-1/3 card bg-base-100 p-4">
-                        <h2 class="text-xl font-semibold mb-4">Top Sales By Location</h2>
-                        <div class="h-[300px] overflow-y-auto">
+                    <div class="w-full mx-4 sm:mx-0  sm:basis-1/3 card bg-base-100 p-4">
+                        <h2 class="text-lg sm:text-xl font-semibold mb-4">Top Sales By Location</h2>
+                        <div class="h-full sm:h-[300px] overflow-y-auto">
                             <table class="min-w-full bg-base-100 border border-base-300 rounded-lg overflow-hidden">
                                 <thead class="bg-primary sticky top-0">
                                     <tr>
                                         <th
-                                            class="px-6 py-3 text-left text-xs font-medium text-primary-content uppercase tracking-wider">
+                                            class="px-4 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-primary-content uppercase tracking-wider">
                                             Location
                                         </th>
                                         <th
-                                            class="px-6 py-3 text-left text-xs font-medium text-primary-content uppercase tracking-wider">
+                                            class="px-4 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-primary-content uppercase tracking-wider">
                                             Sales
                                         </th>
                                     </tr>
@@ -207,10 +207,10 @@ onMounted(() => {
                                 <tbody class="divide-y divide-base-300">
                                     <tr v-for="location in top_sales_by_location" :key="location.id"
                                         class="hover:bg-base-200">
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-base-content">
+                                        <td class="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-base-content">
                                             {{ location.location_model.location_abbreviation }}
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-base-content">
+                                        <td class="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-base-content">
                                             {{ location.highest_sale }}
                                         </td>
                                     </tr>
@@ -221,19 +221,19 @@ onMounted(() => {
                 </div>
 
                 <!-- Salesperson Charts Section -->
-                <div class="flex mt-10 gap-8">
-                    <div class="basis-1/3 card bg-base-100 p-4">
-                        <h2 class="text-xl font-semibold mb-4">Top Sales By Salesperson</h2>
-                        <div class="h-[300px] overflow-y-auto">
+                <div class="flex justify-center flex-wrap sm:flex-nowrap mt-10 gap-8">
+                    <div class="sm:basis-1/3 w-full mx-4 sm:mx-0 card bg-base-100 p-4">
+                        <h2 class="text-lg sm:text-xl font-semibold mb-4">Top Sales By Salesperson</h2>
+                        <div class="h-full sm:h-[300px] overflow-y-auto">
                             <table class="min-w-full bg-base-100 border border-base-300 rounded-lg overflow-hidden">
                                 <thead class="bg-primary sticky top-0">
                                     <tr>
                                         <th
-                                            class="px-6 py-3 text-left text-xs font-medium text-primary-content uppercase tracking-wider">
+                                            class="px-4 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-primary-content uppercase tracking-wider">
                                             Salesperson
                                         </th>
                                         <th
-                                            class="px-6 py-3 text-left text-xs font-medium text-primary-content uppercase tracking-wider">
+                                            class="px-4 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-primary-content uppercase tracking-wider">
                                             Sales
                                         </th>
                                     </tr>
@@ -241,10 +241,10 @@ onMounted(() => {
                                 <tbody class="divide-y divide-base-300">
                                     <tr v-for="salesperson in top_sales_by_salesperson" :key="salesperson.id"
                                         class="hover:bg-base-200">
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-base-content">
+                                        <td class="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-base-content">
                                             {{ salesperson.salesperson_model.salesman_name }}
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-base-content">
+                                        <td class="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-base-content">
                                             {{ salesperson.highest_sale }}
                                         </td>
                                     </tr>
@@ -252,30 +252,30 @@ onMounted(() => {
                             </table>
                         </div>
                     </div>
-                    <div class="basis-2/3 card bg-base-100 p-4">
-                        <h2 class="text-xl font-semibold mb-4">Sales By Salesperson</h2>
+                    <div class="sm:basis-2/3 w-full mx-4 sm:mx-0 card bg-base-100 p-4">
+                        <h2 class="text-lg sm:text-xl font-semibold mb-4">Sales By Salesperson</h2>
                         <canvas ref="salespersonChartRef"></canvas>
                     </div>
                 </div>
 
                 <!-- Customer Charts Section -->
-                <div class="flex mt-10 gap-8">
-                    <div class="basis-2/3 card bg-base-100 p-4">
-                        <h2 class="text-xl font-semibold mb-4">Sales By Customer</h2>
+                <div class="flex justify-center flex-wrap sm:flex-nowrap mt-10 gap-8">
+                    <div class="sm:basis-2/3 w-full mx-4 sm:mx-0 card bg-base-100 p-4">
+                        <h2 class="text-lg sm:text-xl font-semibold mb-4">Sales By Customer</h2>
                         <canvas ref="customerChartRef"></canvas>
                     </div>
-                    <div class="basis-1/3 card bg-base-100 p-4">
-                        <h2 class="text-xl font-semibold mb-4">Top Sales By Customer</h2>
-                        <div class="h-[300px] overflow-y-auto">
+                    <div class="sm:basis-1/3 w-full mx-4 sm:mx-0 card bg-base-100 p-4">
+                        <h2 class="text-lg sm:text-xl font-semibold mb-4">Top Sales By Customer</h2>
+                        <div class="h-full sm:h-[300px] overflow-y-auto">
                             <table class="min-w-full bg-base-100 border border-base-300 rounded-lg overflow-hidden">
-                                    <thead class="bg-primary sticky top-0">
+                                <thead class="bg-primary sticky top-0">
                                     <tr>
                                         <th
-                                            class="px-6 py-3 text-left text-xs font-medium text-primary-content uppercase tracking-wider">
+                                            class="px-4 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-primary-content uppercase tracking-wider">
                                             Customer
                                         </th>
                                         <th
-                                            class="px-6 py-3 text-left text-xs font-medium text-primary-content uppercase tracking-wider">
+                                            class="px-4 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-primary-content uppercase tracking-wider">
                                             Sales
                                         </th>
                                     </tr>
@@ -283,10 +283,10 @@ onMounted(() => {
                                 <tbody class="divide-y divide-base-300">
                                     <tr v-for="customer in top_sales_by_customer" :key="customer.customer_name"
                                         class="hover:bg-base-200">
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-base-content">
+                                        <td class="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-base-content">
                                             {{ customer.customer_name }}
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-base-content">
+                                        <td class="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-base-content">
                                             {{ customer.highest_sale }}
                                         </td>
                                     </tr>

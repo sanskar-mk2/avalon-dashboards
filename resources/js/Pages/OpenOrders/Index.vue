@@ -23,30 +23,34 @@ const closeDeleteModal = () => {
 </script>
 
 <template>
-
     <Head title="Open Orders" />
 
     <AuthenticatedLayout>
         <template #header>
-            <h2 class="text-xl font-semibold leading-tight text-gray-800">
-                Open Orders
+            <h2 class="text-lg sm:text-xl font-semibold leading-tight">
+                <div class="breadcrumbs text-xs sm:text-sm text-base-content">
+                    <ul>
+                        <li><Link :href="route('dashboard')">Home</Link></li>
+                        <li>Open Orders</li>
+                    </ul>
+                </div>
             </h2>
         </template>
 
-        <div class="py-12">
-            <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
+        <div class="py-8 sm:py-12">
+            <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div class="overflow-hidden bg-base-100 shadow-sm sm:rounded-lg">
-                    <div class="p-6 ">
-                        <div class="flex justify-end gap-4 mb-4">
-                            <Link :href="route('open_orders.create')" class="btn btn-primary">
-                            Upload Open Order CSV
+                    <div class="p-4 sm:p-6">
+                        <div class="flex justify-end gap-2 sm:gap-4 mb-4">
+                            <Link :href="route('open_orders.create')" class="btn btn-primary btn-sm sm:btn-md text-xs sm:text-sm">
+                            Upload CSV
                             </Link>
-                            <button @click="openDeleteModal" class="btn btn-error">
-                                Delete All Open Order Records
+                            <button @click="openDeleteModal" class="btn btn-error btn-sm sm:btn-md text-xs sm:text-sm">
+                                Delete All
                             </button>
                         </div>
                         <div class="overflow-x-auto">
-                            <table class="table table-zebra">
+                            <table class="table table-zebra text-xs sm:text-sm">
                                 <thead>
                                     <tr>
                                         <th>Company</th>
@@ -128,7 +132,7 @@ const closeDeleteModal = () => {
                             </table>
                         </div>
                         <div class="mt-2 flex justify-between w-full items-center">
-                            <div class="text-base-content text-md">
+                            <div class="text-base-content text-xs sm:text-sm">
                                 Showing {{ open_orders.from }} to {{ open_orders.to }} of {{ open_orders.total }}
                                 results
                             </div>
@@ -138,14 +142,14 @@ const closeDeleteModal = () => {
                         <!-- Delete Confirmation Modal -->
                         <dialog :open="showDeleteModal" class="modal">
                             <div class="modal-box border-2 border-base-300">
-                                <h3 class="text-lg font-bold">Confirm Deletion</h3>
-                                <p class="py-4">Are you sure you want to delete all open order records? This action cannot be undone.</p>
+                                <h3 class="text-base sm:text-lg font-bold">Confirm Deletion</h3>
+                                <p class="py-4 text-xs sm:text-sm">Are you sure you want to delete all open order records? This action cannot be undone.</p>
                                 <div class="modal-action">
                                     <Link :href="route('open_orders.deleteAll')" method="delete" as="button"
-                                        class="btn btn-error" preserve-scroll @click="closeDeleteModal">
+                                        class="btn btn-error text-xs sm:text-sm" preserve-scroll @click="closeDeleteModal">
                                     Delete All
                                     </Link>
-                                    <button class="btn" @click="closeDeleteModal">Cancel</button>
+                                    <button class="btn text-xs sm:text-sm" @click="closeDeleteModal">Cancel</button>
                                 </div>
                             </div>
                         </dialog>

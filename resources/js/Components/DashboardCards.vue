@@ -58,21 +58,22 @@ const salespeople_cards = computed(() => {
 </script>
 
 <template>
-    <div class="grid grid-cols-4 gap-4">
+    <div class="grid grid-cols-1 mx-4 sm:mx-0 sm:grid-cols-4 gap-4">
         <div class="stats shadow">
             <div class="stat">
-                <div class="stat-title">Total
+                <div class="stat-title text-xs sm:text-base">Total
                     <Link :href="route('sales.index')" class="link">Sales</Link> for {{ sales_cards.last_sales_month }}
                 </div>
-                <div class="stat-value text-primary">{{ sales_cards.last_month_sales }}</div>
-                <div class="stat-desc flex items-center gap-1">
+                <div class="stat-value text-primary text-2xl sm:text-4xl">{{ sales_cards.last_month_sales }}</div>
+                <div class="stat-desc flex items-center gap-1 text-xs sm:text-sm">
                     <div class="badge" :class="{
                         'bg-success/10 text-success': sales_cards.percent_change > 0,
                         'bg-error/10 text-error': sales_cards.percent_change < 0,
                         'bg-warning/10 text-warning': sales_cards.percent_change === 0
                     }">
                         <ArrowDown v-if="sales_cards.percent_change < 0" class="w-4 h-4 stroke-error" />
-                        <ArrowDown v-else-if="sales_cards.percent_change > 0" class="w-4 h-4 stroke-success rotate-180" />
+                        <ArrowDown v-else-if="sales_cards.percent_change > 0"
+                            class="w-4 h-4 stroke-success rotate-180" />
                         <Dash v-else class="w-4 h-4 stroke-warning" />
                         {{ Math.abs(sales_cards.percent_change).toFixed(2) }}%
                     </div>
@@ -85,19 +86,21 @@ const salespeople_cards = computed(() => {
 
         <div class="stats shadow">
             <div class="stat">
-                <div class="stat-title">Total
+                <div class="stat-title text-xs sm:text-base">Total
                     <Link :href="route('open_orders.index')" class="link">Open Orders</Link> for {{
                         open_orders_cards.last_open_orders_month }}
                 </div>
-                <div class="stat-value text-primary">{{ open_orders_cards.last_month_open_orders }}</div>
-                <div class="stat-desc flex items-center gap-1">
+                <div class="stat-value text-primary text-2xl sm:text-4xl">{{ open_orders_cards.last_month_open_orders }}
+                </div>
+                <div class="stat-desc flex items-center gap-1 text-xs sm:text-sm">
                     <div class="badge" :class="{
                         'bg-success/10 text-success': open_orders_cards.percent_change > 0,
                         'bg-error/10 text-error': open_orders_cards.percent_change < 0,
                         'bg-warning/10 text-warning': open_orders_cards.percent_change === 0
                     }">
                         <ArrowDown v-if="open_orders_cards.percent_change < 0" class="w-4 h-4 stroke-error" />
-                        <ArrowDown v-else-if="open_orders_cards.percent_change > 0" class="w-4 h-4 stroke-success rotate-180" />
+                        <ArrowDown v-else-if="open_orders_cards.percent_change > 0"
+                            class="w-4 h-4 stroke-success rotate-180" />
                         <Dash v-else class="w-4 h-4 stroke-warning" />
                         {{ Math.abs(open_orders_cards.percent_change).toFixed(2) }}%
                     </div>
@@ -110,16 +113,20 @@ const salespeople_cards = computed(() => {
 
         <div class="stats shadow">
             <div class="stat">
-                <div class="stat-title">Active <Link :href="route('locations.index')" class="link">Locations</Link> for {{ locations_cards.last_month }}</div>
-                <div class="stat-value text-primary">{{ locations_cards.count }}</div>
-                <div class="stat-desc flex items-center gap-1">
+                <div class="stat-title text-xs sm:text-base">Active
+                    <Link :href="route('locations.index')" class="link">Locations</Link> for {{
+                    locations_cards.last_month }}
+                </div>
+                <div class="stat-value text-primary text-2xl sm:text-4xl">{{ locations_cards.count }}</div>
+                <div class="stat-desc flex items-center gap-1 text-xs sm:text-sm">
                     <div class="badge" :class="{
                         'bg-success/10 text-success': locations_cards.percent_change > 0,
                         'bg-error/10 text-error': locations_cards.percent_change < 0,
                         'bg-warning/10 text-warning': locations_cards.percent_change === 0
                     }">
                         <ArrowDown v-if="locations_cards.percent_change < 0" class="w-4 h-4 stroke-error" />
-                        <ArrowDown v-else-if="locations_cards.percent_change > 0" class="w-4 h-4 stroke-success rotate-180" />
+                        <ArrowDown v-else-if="locations_cards.percent_change > 0"
+                            class="w-4 h-4 stroke-success rotate-180" />
                         <Dash v-else class="w-4 h-4 stroke-warning" />
                         {{ Math.abs(locations_cards.percent_change).toFixed(2) }}%
                     </div>
@@ -132,16 +139,20 @@ const salespeople_cards = computed(() => {
 
         <div class="stats shadow">
             <div class="stat">
-                <div class="stat-title">Active <Link :href="route('salespeople.index')" class="link">Salespeople</Link> for {{ salespeople_cards.last_month }}</div>
-                <div class="stat-value text-primary">{{ salespeople_cards.count }}</div>
-                <div class="stat-desc flex items-center gap-1">
+                <div class="stat-title text-xs sm:text-base">Active
+                    <Link :href="route('salespeople.index')" class="link">Salespeople</Link> for {{
+                    salespeople_cards.last_month }}
+                </div>
+                <div class="stat-value text-primary text-2xl sm:text-4xl">{{ salespeople_cards.count }}</div>
+                <div class="stat-desc flex items-center gap-1 text-xs sm:text-sm">
                     <div class="badge" :class="{
                         'bg-success/10 text-success': salespeople_cards.percent_change > 0,
                         'bg-error/10 text-error': salespeople_cards.percent_change < 0,
                         'bg-warning/10 text-warning': salespeople_cards.percent_change === 0
                     }">
                         <ArrowDown v-if="salespeople_cards.percent_change < 0" class="w-4 h-4 stroke-error" />
-                        <ArrowDown v-else-if="salespeople_cards.percent_change > 0" class="w-4 h-4 stroke-success rotate-180" />
+                        <ArrowDown v-else-if="salespeople_cards.percent_change > 0"
+                            class="w-4 h-4 stroke-success rotate-180" />
                         <Dash v-else class="w-4 h-4 fill-warning" />
                         {{ Math.abs(salespeople_cards.percent_change).toFixed(2) }}%
                     </div>
