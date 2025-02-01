@@ -15,6 +15,7 @@ class LocationController extends Controller
     public function index()
     {
         $locations = Location::withCount(['sales', 'openOrders'])->paginate(8);
+
         return Inertia::render('Locations/Index', [
             'locations' => $locations,
         ]);
@@ -34,7 +35,7 @@ class LocationController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'file' => 'required|file|mimes:csv,txt'
+            'file' => 'required|file|mimes:csv,txt',
         ]);
 
         $path = $request->file('file')->store('temp');
@@ -42,7 +43,7 @@ class LocationController extends Controller
         // Set UTF-8 encoding for reading CSV
         $collection = (new FastExcel)
             ->configureCsv(',')
-            ->import(storage_path('app/private/' . $path));
+            ->import(storage_path('app/private/'.$path));
 
         // Split collection into chunks of 1000 records and save to DB
         $chunks = $collection->chunk(1000);
@@ -55,6 +56,7 @@ class LocationController extends Controller
                     if (is_string($value)) {
                         return mb_convert_encoding($value, 'UTF-8', 'UTF-8');
                     }
+
                     return $value;
                 };
 
@@ -69,7 +71,7 @@ class LocationController extends Controller
         }
 
         // Delete temporary file
-        unlink(storage_path('app/private/' . $path));
+        unlink(storage_path('app/private/'.$path));
 
         return redirect()->route('locations.index')->with('success', 'Locations imported successfully');
     }
@@ -114,6 +116,7 @@ class LocationController extends Controller
     public function deleteAll()
     {
         Location::truncate();
+
         return back()->with('success', 'All Location records deleted successfully');
     }
 }

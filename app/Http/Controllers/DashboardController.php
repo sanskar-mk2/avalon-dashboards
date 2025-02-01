@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\OpenOrder;
 use App\Models\Sale;
-use App\Models\Salesperson;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -23,7 +22,7 @@ class DashboardController extends Controller
             'sales_by_salesperson' => $this->getSalesBySalesperson(),
             'top_sales_by_salesperson' => $this->getTopSalesBySalesperson(),
             'sales_by_customer' => $this->getSalesByCustomer(),
-            'top_sales_by_customer' => $this->getTopSalesByCustomer()
+            'top_sales_by_customer' => $this->getTopSalesByCustomer(),
         ]);
     }
 
@@ -75,7 +74,7 @@ class DashboardController extends Controller
             'sales' => $sales,
             'open_orders' => $open_orders,
             'active_locations' => $active_locations,
-            'active_salespeople' => $active_salespeople
+            'active_salespeople' => $active_salespeople,
         ];
     }
 
@@ -91,7 +90,7 @@ class DashboardController extends Controller
             ->groupBy('location', 'period')
             ->select(
                 'location',
-                'period', 
+                'period',
                 DB::raw('SUM(ext_sales) as total_amount')
             )
             ->with('locationModel')
@@ -99,19 +98,19 @@ class DashboardController extends Controller
             ->orderBy('total_amount', 'desc')
             ->get()
             ->filter(function ($sale) {
-                return !is_null($sale->locationModel);
+                return ! is_null($sale->locationModel);
             });
 
         $periods = $sales_by_location->pluck('period')->unique()->sortDesc();
         $latest_period = $periods->first();
-        
+
         $location_data = $sales_by_location
             ->where('period', $latest_period)
             ->groupBy('locationModel.location_abbreviation')
-            ->map(function($group) {
+            ->map(function ($group) {
                 return [
                     'abbreviation' => $group->first()->locationModel->location_abbreviation,
-                    'total_amount' => $group->sum('total_amount')
+                    'total_amount' => $group->sum('total_amount'),
                 ];
             })
             ->sortByDesc('total_amount')
@@ -125,17 +124,17 @@ class DashboardController extends Controller
                 $period_data = $sales_by_location
                     ->where('period', $period)
                     ->groupBy('locationModel.location_abbreviation')
-                    ->map(function($group) {
+                    ->map(function ($group) {
                         return $group->sum('total_amount');
                     });
 
                 return [
                     'label' => $period,
-                    'data' => $location_abbreviations->map(function($abbr) use ($period_data) {
+                    'data' => $location_abbreviations->map(function ($abbr) use ($period_data) {
                         return $period_data->get($abbr, 0);
-                    })->values()->all()
+                    })->values()->all(),
                 ];
-            })->values()->all()
+            })->values()->all(),
         ];
     }
 
@@ -153,16 +152,16 @@ class DashboardController extends Controller
                 'location',
                 DB::raw('MAX(ext_sales) as highest_sale')
             )
-            ->with(['locationModel' => function($query) {
+            ->with(['locationModel' => function ($query) {
                 $query->select('id', 'location', 'location_abbreviation');
             }])
             ->orderBy('highest_sale', 'desc')
             ->get()
             ->filter(function ($sale) {
-                return !is_null($sale->locationModel);
+                return ! is_null($sale->locationModel);
             })
             ->groupBy('locationModel.location_abbreviation')
-            ->map(function($group) {
+            ->map(function ($group) {
                 return $group->sortByDesc('highest_sale')->first();
             })
             ->values();
@@ -188,7 +187,7 @@ class DashboardController extends Controller
             ->orderBy('total_amount', 'desc')
             ->get()
             ->filter(function ($sale) {
-                return !is_null($sale->salespersonModel);
+                return ! is_null($sale->salespersonModel);
             });
 
         $periods = $sales_by_salesperson->pluck('period')->unique()->sortDesc();
@@ -197,10 +196,10 @@ class DashboardController extends Controller
         $salesperson_data = $sales_by_salesperson
             ->where('period', $latest_period)
             ->groupBy('salespersonModel.salesman_name')
-            ->map(function($group) {
+            ->map(function ($group) {
                 return [
                     'name' => $group->first()->salespersonModel->salesman_name,
-                    'total_amount' => $group->sum('total_amount')
+                    'total_amount' => $group->sum('total_amount'),
                 ];
             })
             ->sortByDesc('total_amount')
@@ -214,17 +213,17 @@ class DashboardController extends Controller
                 $period_data = $sales_by_salesperson
                     ->where('period', $period)
                     ->groupBy('salespersonModel.salesman_name')
-                    ->map(function($group) {
+                    ->map(function ($group) {
                         return $group->sum('total_amount');
                     });
 
                 return [
                     'label' => $period,
-                    'data' => $salesperson_names->map(function($name) use ($period_data) {
+                    'data' => $salesperson_names->map(function ($name) use ($period_data) {
                         return $period_data->get($name, 0);
-                    })->values()->all()
+                    })->values()->all(),
                 ];
-            })->values()->all()
+            })->values()->all(),
         ];
     }
 
@@ -242,16 +241,16 @@ class DashboardController extends Controller
                 'salesperson',
                 DB::raw('MAX(ext_sales) as highest_sale')
             )
-            ->with(['salespersonModel' => function($query) {
+            ->with(['salespersonModel' => function ($query) {
                 $query->select('id', 'salesman_no', 'salesman_name');
             }])
             ->orderBy('highest_sale', 'desc')
             ->get()
             ->filter(function ($sale) {
-                return !is_null($sale->salespersonModel);
+                return ! is_null($sale->salespersonModel);
             })
             ->groupBy('salespersonModel.salesman_name')
-            ->map(function($group) {
+            ->map(function ($group) {
                 return $group->sortByDesc('highest_sale')->first();
             })
             ->values();
@@ -282,10 +281,10 @@ class DashboardController extends Controller
         $customer_data = $sales_by_customer
             ->where('period', $latest_period)
             ->groupBy('customer_name')
-            ->map(function($group) {
+            ->map(function ($group) {
                 return [
                     'name' => $group->first()->customer_name,
-                    'total_amount' => $group->sum('total_amount')
+                    'total_amount' => $group->sum('total_amount'),
                 ];
             })
             ->sortByDesc('total_amount')
@@ -300,17 +299,17 @@ class DashboardController extends Controller
                 $period_data = $sales_by_customer
                     ->where('period', $period)
                     ->groupBy('customer_name')
-                    ->map(function($group) {
+                    ->map(function ($group) {
                         return $group->sum('total_amount');
                     });
 
                 return [
                     'label' => $period,
-                    'data' => $customer_names->map(function($name) use ($period_data) {
+                    'data' => $customer_names->map(function ($name) use ($period_data) {
                         return $period_data->get($name, 0);
-                    })->values()->all()
+                    })->values()->all(),
                 ];
-            })->values()->all()
+            })->values()->all(),
         ];
     }
 

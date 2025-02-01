@@ -15,6 +15,7 @@ class OpenOrderController extends Controller
     public function index()
     {
         $open_orders = OpenOrder::paginate(8);
+
         return Inertia::render('OpenOrders/Index', [
             'open_orders' => $open_orders,
         ]);
@@ -39,7 +40,7 @@ class OpenOrderController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'file' => 'required|file|mimes:csv,txt'
+            'file' => 'required|file|mimes:csv,txt',
         ]);
 
         $path = $request->file('file')->store('temp');
@@ -47,7 +48,7 @@ class OpenOrderController extends Controller
         // Set UTF-8 encoding for reading CSV
         $collection = (new FastExcel)
             ->configureCsv(',')
-            ->import(storage_path('app/private/' . $path));
+            ->import(storage_path('app/private/'.$path));
 
         // Split collection into chunks of 1000 records and save to DB
         $chunks = $collection->chunk(1000);
@@ -61,6 +62,7 @@ class OpenOrderController extends Controller
                         // Convert to UTF-8 if not already and remove invalid sequences
                         return mb_convert_encoding($value, 'UTF-8', 'UTF-8');
                     }
+
                     return $value;
                 };
 
@@ -86,7 +88,7 @@ class OpenOrderController extends Controller
                     'qty' => $fields[18] ?? null,
                     'ext_sales' => $fields[19] ?? null,
                     'ext_cost' => $fields[20] ?? null,
-                    'period' => $fields[21] ? date('Y-m-d', strtotime($fields[21] . '01')) : null,
+                    'period' => $fields[21] ? date('Y-m-d', strtotime($fields[21].'01')) : null,
                     'order_status' => $sanitizeString($fields[22] ?? null),
                     'advertising_source' => $sanitizeString($fields[23] ?? null),
                     'finance_co_rate' => $fields[24] ?? null,
@@ -107,7 +109,7 @@ class OpenOrderController extends Controller
         }
 
         // Delete temporary file
-        unlink(storage_path('app/private/' . $path));
+        unlink(storage_path('app/private/'.$path));
 
         return redirect()->route('open_orders.index')->with('success', 'Open orders imported successfully');
     }
@@ -147,6 +149,7 @@ class OpenOrderController extends Controller
     public function deleteAll()
     {
         OpenOrder::truncate();
+
         return back()->with('success', 'All Open Order records deleted successfully');
     }
 }

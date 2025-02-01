@@ -6,11 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class Sale extends Model
 {
-    public function salespersonModel() {
+    public function salespersonModel()
+    {
         return $this->belongsTo(Salesperson::class, 'salesperson', 'salesman_no');
     }
 
-    public function locationModel() {
+    public function locationModel()
+    {
         return $this->belongsTo(Location::class, 'location', 'location');
     }
 }

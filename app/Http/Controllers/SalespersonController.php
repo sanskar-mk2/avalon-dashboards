@@ -15,6 +15,7 @@ class SalespersonController extends Controller
     public function index()
     {
         $salespeople = Salesperson::withCount(['sales', 'openOrders'])->paginate(8);
+
         return Inertia::render('Salespeople/Index', [
             'salespeople' => $salespeople,
         ]);
@@ -39,7 +40,7 @@ class SalespersonController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'file' => 'required|file|mimes:csv,txt'
+            'file' => 'required|file|mimes:csv,txt',
         ]);
 
         $path = $request->file('file')->store('temp');
@@ -47,7 +48,7 @@ class SalespersonController extends Controller
         // Set UTF-8 encoding for reading CSV
         $collection = (new FastExcel)
             ->configureCsv(',')
-            ->import(storage_path('app/private/' . $path));
+            ->import(storage_path('app/private/'.$path));
 
         // Split collection into chunks of 1000 records and save to DB
         $chunks = $collection->chunk(1000);
@@ -61,6 +62,7 @@ class SalespersonController extends Controller
                         // Convert to UTF-8 if not already and remove invalid sequences
                         return mb_convert_encoding($value, 'UTF-8', 'UTF-8');
                     }
+
                     return $value;
                 };
 
@@ -76,7 +78,7 @@ class SalespersonController extends Controller
         }
 
         // Delete temporary file
-        unlink(storage_path('app/private/' . $path));
+        unlink(storage_path('app/private/'.$path));
 
         return redirect()->route('salespeople.index')->with('success', 'Salespeople imported successfully');
     }
@@ -121,6 +123,7 @@ class SalespersonController extends Controller
     public function deleteAll()
     {
         Salesperson::truncate();
+
         return back()->with('success', 'All Salesperson records deleted successfully');
     }
 }

@@ -27,6 +27,13 @@ let customerChart = null;
 
 const current_theme = ref(null);
 
+const numberFormatter = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0
+});
+
 const getThemeColor = computed(() => {
     const theme_obj = theme[current_theme.value];
     if (!theme_obj) {
@@ -211,7 +218,7 @@ onMounted(() => {
                                             {{ location.location_model.location_abbreviation }}
                                         </td>
                                         <td class="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-base-content">
-                                            {{ location.highest_sale }}
+                                            {{ numberFormatter.format(location.highest_sale) }}
                                         </td>
                                     </tr>
                                 </tbody>
@@ -245,7 +252,7 @@ onMounted(() => {
                                             {{ salesperson.salesperson_model.salesman_name }}
                                         </td>
                                         <td class="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-base-content">
-                                            {{ salesperson.highest_sale }}
+                                            {{ numberFormatter.format(salesperson.highest_sale) }}
                                         </td>
                                     </tr>
                                 </tbody>
@@ -287,7 +294,7 @@ onMounted(() => {
                                             {{ customer.customer_name }}
                                         </td>
                                         <td class="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-base-content">
-                                            {{ customer.highest_sale }}
+                                            {{ numberFormatter.format(customer.highest_sale) }}
                                         </td>
                                     </tr>
                                 </tbody>
