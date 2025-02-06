@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\AccountReceivableController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\OpenOrderController;
 use App\Http\Controllers\ProfileController;
@@ -30,6 +32,10 @@ Route::middleware('auth')->group(function () {
     Route::delete('/salespeople', [SalespersonController::class, 'deleteAll'])->name('salespeople.deleteAll');
     Route::resource('locations', LocationController::class);
     Route::delete('/locations', [LocationController::class, 'deleteAll'])->name('locations.deleteAll');
+    Route::resource('account_receivables', AccountReceivableController::class);
+    Route::delete('/account_receivables', [AccountReceivableController::class, 'deleteAll'])->name('account_receivables.deleteAll');
+    Route::resource('inventories', InventoryController::class);
+    Route::delete('/inventories', [InventoryController::class, 'deleteAll'])->name('inventories.deleteAll');
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
 });
 

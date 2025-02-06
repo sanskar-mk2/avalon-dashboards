@@ -106,11 +106,10 @@ class DashboardController extends Controller
 
         $location_data = $sales_by_location
             ->where('period', $latest_period)
-            ->groupBy('locationModel.location_abbreviation')
-            ->map(function ($group) {
+            ->map(function ($sale) {
                 return [
-                    'abbreviation' => $group->first()->locationModel->location_abbreviation,
-                    'total_amount' => $group->sum('total_amount'),
+                    'abbreviation' => $sale->locationModel->location_abbreviation,
+                    'total_amount' => $sale->total_amount,
                 ];
             })
             ->sortByDesc('total_amount')
@@ -123,9 +122,8 @@ class DashboardController extends Controller
             'datasets' => $periods->map(function ($period) use ($sales_by_location, $location_abbreviations) {
                 $period_data = $sales_by_location
                     ->where('period', $period)
-                    ->groupBy('locationModel.location_abbreviation')
-                    ->map(function ($group) {
-                        return $group->sum('total_amount');
+                    ->mapWithKeys(function ($sale) {
+                        return [$sale->locationModel->location_abbreviation => $sale->total_amount];
                     });
 
                 return [
@@ -159,10 +157,6 @@ class DashboardController extends Controller
             ->get()
             ->filter(function ($sale) {
                 return ! is_null($sale->locationModel);
-            })
-            ->groupBy('locationModel.location_abbreviation')
-            ->map(function ($group) {
-                return $group->sortByDesc('highest_sale')->first();
             })
             ->values();
     }

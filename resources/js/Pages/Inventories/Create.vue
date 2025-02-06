@@ -4,13 +4,13 @@ import FileUpload from "@/Components/FileUpload.vue";
 
 const breadcrumbs = [
     { label: 'Home', route: 'dashboard' },
-    { label: 'Open Orders', route: 'open_orders.index' },
+    { label: 'Inventories', route: 'inventories.index' },
     { label: 'Create' }
 ];
 </script>
 
 <template>
-    <PageLayout title="Open Orders" :breadcrumbs="breadcrumbs">
-        <FileUpload label="Open Orders" store-route="open_orders.store" />
+    <PageLayout title="Inventories" :breadcrumbs="breadcrumbs">
+        <FileUpload label="Inventories" store-route="inventories.store" />
     </PageLayout>
 </template>

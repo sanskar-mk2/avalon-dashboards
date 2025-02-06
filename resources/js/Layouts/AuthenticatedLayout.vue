@@ -39,14 +39,24 @@ onMounted(() => {
                                 <NavLink :href="route('sales.index')" :active="route().current('sales.index')">
                                     Sales
                                 </NavLink>
-                                <NavLink :href="route('open_orders.index')" :active="route().current('open_orders.index')">
+                                <NavLink :href="route('open_orders.index')"
+                                    :active="route().current('open_orders.index')">
                                     Open Orders
                                 </NavLink>
                                 <NavLink :href="route('locations.index')" :active="route().current('locations.index')">
                                     Locations
                                 </NavLink>
-                                <NavLink :href="route('salespeople.index')" :active="route().current('salespeople.index')">
+                                <NavLink :href="route('salespeople.index')"
+                                    :active="route().current('salespeople.index')">
                                     Salespeople
+                                </NavLink>
+                                <NavLink :href="route('account_receivables.index')"
+                                    :active="route().current('account_receivables.index')">
+                                    Account Receivables
+                                </NavLink>
+                                <NavLink :href="route('inventories.index')"
+                                    :active="route().current('inventories.index')">
+                                    Inventories
                                 </NavLink>
                             </div>
                         </div>
@@ -121,14 +131,25 @@ onMounted(() => {
                         <ResponsiveNavLink :href="route('sales.index')" :active="route().current('sales.index')">
                             Sales
                         </ResponsiveNavLink>
-                        <ResponsiveNavLink :href="route('open_orders.index')" :active="route().current('open_orders.index')">
+                        <ResponsiveNavLink :href="route('open_orders.index')"
+                            :active="route().current('open_orders.index')">
                             Open Orders
                         </ResponsiveNavLink>
-                        <ResponsiveNavLink :href="route('locations.index')" :active="route().current('locations.index')">
+                        <ResponsiveNavLink :href="route('locations.index')"
+                            :active="route().current('locations.index')">
                             Locations
                         </ResponsiveNavLink>
-                        <ResponsiveNavLink :href="route('salespeople.index')" :active="route().current('salespeople.index')">
+                        <ResponsiveNavLink :href="route('salespeople.index')"
+                            :active="route().current('salespeople.index')">
                             Salespeople
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink :href="route('account_receivables.index')"
+                            :active="route().current('account_receivables.index')">
+                            Account Receivables
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink :href="route('inventories.index')"
+                            :active="route().current('inventories.index')">
+                            Inventories
                         </ResponsiveNavLink>
                     </div>
 
@@ -157,9 +178,11 @@ onMounted(() => {
 
             <!-- Page Heading -->
             <header class="bg-base-100 shadow" v-if="$slots.header">
-                <div class="mx-auto max-w-7xl px-4 py-2 sm:px-6 lg:px-8 flex flex-wrap sm:flex-nowrap items-center justify-between">
+                <div
+                    class="mx-auto max-w-7xl px-4 py-2 sm:px-6 lg:px-8 flex flex-wrap sm:flex-nowrap items-center justify-between">
                     <slot name="header" />
-                    <select class="ml-auto select select-primary w-32 select-sm sm:select-md text-xs sm:text-sm" data-choose-theme>
+                    <select class="ml-auto select select-primary w-32 select-sm sm:select-md text-xs sm:text-sm"
+                        data-choose-theme>
                         <option value="light">Light</option>
                         <option value="dark">Dark</option>
                         <option value="cupcake">Cupcake</option>
