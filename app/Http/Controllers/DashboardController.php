@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AccountReceivable;
+use App\Models\Inventory;
 use App\Models\OpenOrder;
 use App\Models\Sale;
 use Illuminate\Http\Request;
@@ -52,87 +54,95 @@ class DashboardController extends Controller
             ->orderBy('period', 'desc')
             ->get();
 
-        $active_locations = Sale::whereIn('period', $lastTwoMonths_sales)
-            ->groupBy('period')
+        // $active_locations = Sale::whereIn('period', $lastTwoMonths_sales)
+        //     ->groupBy('period')
+        //     ->select(
+        //         'period',
+        //         DB::raw('COUNT(DISTINCT CASE WHEN location IS NOT NULL THEN location END) as count')
+        //     )
+        //     ->orderBy('period', 'desc')
+        //     ->get();
+
+        // $active_salespeople = Sale::whereIn('period', $lastTwoMonths_sales)
+        //     ->groupBy('period')
+        //     ->select(
+        //         'period',
+        //         DB::raw('COUNT(DISTINCT CASE WHEN salesperson IS NOT NULL THEN salesperson END) as count')
+        //     )
+        //     ->orderBy('period', 'desc')
+        //     ->get();
+
+        $total_inventory = Inventory::select('fiscal_period')
+            ->groupBy('fiscal_period')
             ->select(
-                'period',
-                DB::raw('COUNT(DISTINCT CASE WHEN location IS NOT NULL THEN location END) as count')
+                'fiscal_period as period',
+                DB::raw('SUM(qty_on_hand * average_cost) as total_amount')
             )
-            ->orderBy('period', 'desc')
+            ->orderBy('fiscal_period', 'desc')
+            ->take(2)
             ->get();
 
-        $active_salespeople = Sale::whereIn('period', $lastTwoMonths_sales)
-            ->groupBy('period')
+        $total_receivables = AccountReceivable::select('fiscal_period')
+            ->groupBy('fiscal_period')
             ->select(
-                'period',
-                DB::raw('COUNT(DISTINCT CASE WHEN salesperson IS NOT NULL THEN salesperson END) as count')
+                'fiscal_period as period',
+                DB::raw('SUM(balance_due_amount) as total_amount')
             )
-            ->orderBy('period', 'desc')
+            ->orderBy('fiscal_period', 'desc')
+            ->take(2)
             ->get();
 
         return [
             'sales' => $sales,
             'open_orders' => $open_orders,
-            'active_locations' => $active_locations,
-            'active_salespeople' => $active_salespeople,
+            'total_inventory' => $total_inventory,
+            'total_receivables' => $total_receivables,
         ];
     }
 
     private function getLocationChartData()
     {
-        $lastTwoMonths_sales = Sale::select('period')
+        $latest_period = Sale::select('period')
             ->distinct()
             ->orderBy('period', 'desc')
-            ->take(2)
-            ->pluck('period');
+            ->first()
+            ->period;
 
-        $sales_by_location = Sale::whereIn('period', $lastTwoMonths_sales)
-            ->groupBy('location', 'period')
+        $location_data = Sale::where('period', $latest_period)
+            ->groupBy('location')
             ->select(
                 'location',
-                'period',
-                DB::raw('SUM(ext_sales) as total_amount')
+                DB::raw('SUM(ext_sales) as total_sales'),
+                DB::raw('SUM(ext_sales - ext_cost) as total_gp')
             )
             ->with('locationModel')
-            ->orderBy('period', 'desc')
-            ->orderBy('total_amount', 'desc')
+            ->orderBy('total_sales', 'desc')
             ->get()
             ->filter(function ($sale) {
                 return ! is_null($sale->locationModel);
             });
 
-        $periods = $sales_by_location->pluck('period')->unique()->sortDesc();
-        $latest_period = $periods->first();
-
-        $location_data = $sales_by_location
-            ->where('period', $latest_period)
-            ->map(function ($sale) {
-                return [
-                    'abbreviation' => $sale->locationModel->location_abbreviation,
-                    'total_amount' => $sale->total_amount,
-                ];
-            })
-            ->sortByDesc('total_amount')
-            ->values();
-
-        $location_abbreviations = $location_data->pluck('abbreviation');
+        $location_abbreviations = $location_data->pluck('locationModel.location_abbreviation');
 
         return [
-            'labels' => $location_abbreviations->values()->all(),
-            'datasets' => $periods->map(function ($period) use ($sales_by_location, $location_abbreviations) {
-                $period_data = $sales_by_location
-                    ->where('period', $period)
-                    ->mapWithKeys(function ($sale) {
-                        return [$sale->locationModel->location_abbreviation => $sale->total_amount];
-                    });
-
-                return [
-                    'label' => $period,
-                    'data' => $location_abbreviations->map(function ($abbr) use ($period_data) {
-                        return $period_data->get($abbr, 0);
-                    })->values()->all(),
-                ];
-            })->values()->all(),
+            'sales_by_location' => [
+                'labels' => $location_abbreviations->values()->all(),
+                'datasets' => [
+                    [
+                        'label' => $latest_period,
+                        'data' => $location_data->pluck('total_sales')->values()->all()
+                    ]
+                ]
+            ],
+            'gp_by_location' => [
+                'labels' => $location_abbreviations->values()->all(), 
+                'datasets' => [
+                    [
+                        'label' => $latest_period,
+                        'data' => $location_data->pluck('total_gp')->values()->all()
+                    ]
+                ]
+            ]
         ];
     }
 

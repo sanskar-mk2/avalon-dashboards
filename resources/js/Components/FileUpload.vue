@@ -4,12 +4,12 @@ import { useForm } from "@inertiajs/vue3";
 const props = defineProps({
     label: {
         type: String,
-        required: true
+        required: true,
     },
     storeRoute: {
         type: String,
-        required: true
-    }
+        required: true,
+    },
 });
 
 const form = useForm({
@@ -35,17 +35,29 @@ const submit = () => {
         <div class="grid w-full max-w-sm items-center gap-1.5">
             <label class="form-control w-full max-w-xs">
                 <div class="label">
-                    <span class="label-text text-sm sm:text-base">{{ label }} CSV File</span>
+                    <span class="label-text text-sm sm:text-base"
+                        >{{ label }} CSV File</span
+                    >
                 </div>
-                <input type="file" @input="handleFileUpload" accept=".csv"
-                    class="file-input file-input-bordered w-full max-w-xs text-sm sm:text-base" />
+                <input
+                    type="file"
+                    @input="handleFileUpload"
+                    accept=".csv"
+                    class="file-input file-input-bordered w-full max-w-xs text-sm sm:text-base"
+                />
                 <div class="label">
-                    <span class="label-text-alt text-xs sm:text-sm">Please upload a CSV file</span>
+                    <span class="label-text-alt text-xs sm:text-sm"
+                        >Please upload a CSV file</span
+                    >
                 </div>
             </label>
-            <button type="submit" :disabled="!form.file" class="btn btn-primary text-sm sm:text-base">
+            <button
+                type="submit"
+                :disabled="!form.file"
+                class="btn btn-primary text-sm sm:text-base"
+            >
                 Upload CSV
             </button>
         </div>
     </form>
-</template> 
+</template>

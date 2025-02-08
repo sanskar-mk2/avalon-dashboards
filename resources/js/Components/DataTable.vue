@@ -5,20 +5,20 @@ import Pagination from "@/Components/Pagination.vue";
 const props = defineProps({
     data: {
         type: Object,
-        required: true
+        required: true,
     },
     columns: {
         type: Array,
-        required: true
+        required: true,
     },
     routeName: {
         type: String,
-        default: null
+        default: null,
     },
     linkColumn: {
         type: String,
-        default: null
-    }
+        default: null,
+    },
 });
 </script>
 
@@ -27,14 +27,19 @@ const props = defineProps({
         <table class="table table-zebra text-xs sm:text-sm">
             <thead>
                 <tr>
-                    <th v-for="column in columns" :key="column.key">{{ column.label }}</th>
+                    <th v-for="column in columns" :key="column.key">
+                        {{ column.label }}
+                    </th>
                 </tr>
             </thead>
             <tbody>
                 <tr v-for="item in data.data" :key="item.id">
                     <td v-for="column in columns" :key="column.key">
                         <template v-if="column.key === linkColumn && routeName">
-                            <Link class="link" :href="route(routeName, item.id)">
+                            <Link
+                                class="link"
+                                :href="route(routeName, item.id)"
+                            >
                                 {{ item[column.key] }}
                             </Link>
                         </template>
@@ -52,4 +57,4 @@ const props = defineProps({
         </div>
         <Pagination :links="data.links" />
     </div>
-</template> 
+</template>

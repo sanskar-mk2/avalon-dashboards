@@ -1,10 +1,10 @@
 <script setup>
-import { ref, watch, onMounted } from 'vue';
-import { usePage } from '@inertiajs/vue3';
+import { ref, watch, onMounted } from "vue";
+import { usePage } from "@inertiajs/vue3";
 
 const showSuccess = ref(false);
 const showError = ref(false);
-const flashMessage = ref('');
+const flashMessage = ref("");
 const page = usePage();
 
 onMounted(() => {

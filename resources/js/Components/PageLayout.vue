@@ -5,12 +5,12 @@ import { Head, Link } from "@inertiajs/vue3";
 const props = defineProps({
     title: {
         type: String,
-        required: true
+        required: true,
     },
     breadcrumbs: {
         type: Array,
-        required: true
-    }
+        required: true,
+    },
 });
 </script>
 
@@ -24,7 +24,9 @@ const props = defineProps({
                     <ul>
                         <li v-for="(crumb, index) in breadcrumbs" :key="index">
                             <template v-if="crumb.route">
-                                <Link :href="route(crumb.route)">{{ crumb.label }}</Link>
+                                <Link :href="route(crumb.route)">{{
+                                    crumb.label
+                                }}</Link>
                             </template>
                             <template v-else>
                                 {{ crumb.label }}
@@ -37,7 +39,9 @@ const props = defineProps({
 
         <div class="py-8 sm:py-12">
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                <div class="overflow-hidden bg-base-100 shadow-sm sm:rounded-lg">
+                <div
+                    class="overflow-hidden bg-base-100 shadow-sm sm:rounded-lg"
+                >
                     <div class="p-4 sm:p-6">
                         <slot></slot>
                     </div>
@@ -45,4 +49,4 @@ const props = defineProps({
             </div>
         </div>
     </AuthenticatedLayout>
-</template> 
+</template>

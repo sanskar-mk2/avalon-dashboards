@@ -4,23 +4,23 @@ import { Link } from "@inertiajs/vue3";
 const props = defineProps({
     show: {
         type: Boolean,
-        required: true
+        required: true,
     },
     title: {
         type: String,
-        default: "Confirm Deletion"
+        default: "Confirm Deletion",
     },
     message: {
         type: String,
-        required: true
+        required: true,
     },
     deleteRoute: {
         type: String,
-        required: true
-    }
+        required: true,
+    },
 });
 
-const emit = defineEmits(['close']);
+const emit = defineEmits(["close"]);
 </script>
 
 <template>
@@ -29,12 +29,20 @@ const emit = defineEmits(['close']);
             <h3 class="text-base sm:text-lg font-bold">{{ title }}</h3>
             <p class="py-4 text-xs sm:text-sm">{{ message }}</p>
             <div class="modal-action">
-                <Link :href="route(deleteRoute)" method="delete" as="button" class="btn btn-error text-xs sm:text-sm"
-                    preserve-scroll @click="$emit('close')">
+                <Link
+                    :href="route(deleteRoute)"
+                    method="delete"
+                    as="button"
+                    class="btn btn-error text-xs sm:text-sm"
+                    preserve-scroll
+                    @click="$emit('close')"
+                >
                     Delete All
                 </Link>
-                <button class="btn text-xs sm:text-sm" @click="$emit('close')">Cancel</button>
+                <button class="btn text-xs sm:text-sm" @click="$emit('close')">
+                    Cancel
+                </button>
             </div>
         </div>
     </dialog>
-</template> 
+</template>
