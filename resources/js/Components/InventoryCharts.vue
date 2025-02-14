@@ -3,6 +3,9 @@ import { ref, onMounted, computed, watch } from "vue";
 import Chart from "chart.js/auto";
 import theme from "daisyui/src/theming/themes";
 import Color from "colorjs.io";
+import ChartDataLabels from 'chartjs-plugin-datalabels';
+
+Chart.register(ChartDataLabels);
 
 const props = defineProps({
     us_warehouse_inventory: Object,
@@ -95,6 +98,29 @@ const createInventoryChart = () => {
                     },
                 },
             },
+            plugins: {
+                datalabels: {
+                    color: 'white',
+                    formatter: function(value, context) {
+                        if (context.dataset.label === "Inventory Turn") {
+                            return value.toFixed(1) + 'x';
+                        }
+                        return '$' + (value / 1000000).toFixed(1) + 'M';
+                    },
+                    backgroundColor: function(context) {
+                        return context.dataset.borderColor;
+                    },
+                    borderRadius: 4,
+                    padding: 4,
+                    font: {
+                        weight: 'bold',
+                        size: 11
+                    },
+                    display: function(context) {
+                        return context.dataset.data[context.dataIndex] !== 0;
+                    }
+                }
+            }
         },
     });
 };

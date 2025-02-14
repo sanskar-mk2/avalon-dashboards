@@ -3,6 +3,9 @@ import { ref, onMounted, watch, computed } from "vue";
 import Chart from "chart.js/auto";
 import theme from "daisyui/src/theming/themes";
 import Color from "colorjs.io";
+import ChartDataLabels from "chartjs-plugin-datalabels";
+
+Chart.register(ChartDataLabels);
 
 const props = defineProps({
     sales_by_salesperson: Object,
@@ -70,9 +73,31 @@ const createSalespersonChart = () => {
                 y: {
                     ticks: {
                         callback: function (value) {
-                            return (value / 1000000).toFixed(1) + "M";
+                            return (value / 1000).toFixed(1) + "K";
                         },
                     },
+                },
+            },
+            plugins: {
+                datalabels: {
+                    color: "white",
+                    formatter: function (value) {
+                        return "$" + (value / 1000).toFixed(1) + "K";
+                    },
+                    backgroundColor: function (context) {
+                        return context.dataset.borderColor;
+                    },
+                    borderRadius: 4,
+                    padding: 4,
+                    font: {
+                        weight: "bold",
+                        size: 11,
+                    },
+                    display: function (context) {
+                        return context.dataset.data[context.dataIndex] !== 0;
+                    },
+                    anchor: "end",
+                    align: "end",
                 },
             },
         },

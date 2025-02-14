@@ -3,6 +3,9 @@ import { ref, onMounted, watch, computed } from "vue";
 import Chart from "chart.js/auto";
 import theme from "daisyui/src/theming/themes";
 import Color from "colorjs.io";
+import ChartDataLabels from "chartjs-plugin-datalabels";
+
+Chart.register(ChartDataLabels);
 
 const props = defineProps({
     location_chart_data: Object,
@@ -96,6 +99,33 @@ const createLocationChart = () => {
                         const value = context.raw;
                         return numberFormatter.format(value);
                     },
+                },
+            },
+            datalabels: {
+                color: "white",
+                formatter: function (value) {
+                    return "$" + (value / 1000000).toFixed(1) + "M";
+                },
+                backgroundColor: function (context) {
+                    return context.dataset.borderColor[context.dataIndex];
+                },
+                borderRadius: 4,
+                padding: 4,
+                font: {
+                    weight: "bold",
+                    size: 11,
+                },
+                display: function (context) {
+                    console.log(context);
+                    const dataset = context.dataset.data;
+                    const value = dataset[context.dataIndex];
+                    return (
+                        value >
+                        dataset.reduce(
+                            (a, b) => parseFloat(a) + parseFloat(b)
+                        ) *
+                            0.05
+                    ); // Only show if value is more than 5% of total
                 },
             },
         },
@@ -195,9 +225,7 @@ onMounted(() => {
                                 class="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-base-content"
                             >
                                 {{
-                                    numberFormatter.format(
-                                        location.total_sales
-                                    )
+                                    numberFormatter.format(location.total_sales)
                                 }}
                             </td>
                         </tr>

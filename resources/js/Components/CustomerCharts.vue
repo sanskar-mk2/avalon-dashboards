@@ -3,6 +3,9 @@ import { ref, onMounted, watch, computed } from "vue";
 import Chart from "chart.js/auto";
 import theme from "daisyui/src/theming/themes";
 import Color from "colorjs.io";
+import ChartDataLabels from "chartjs-plugin-datalabels";
+
+Chart.register(ChartDataLabels);
 
 const props = defineProps({
     sales_by_customer: Object,
@@ -70,9 +73,33 @@ const createCustomerChart = () => {
                 y: {
                     ticks: {
                         callback: function (value) {
-                            return (value / 1000000).toFixed(1) + "M";
+                            return value >= 1000000
+                                ? (value / 1000000).toFixed(1) + "M"
+                                : (value / 1000).toFixed(1) + "K";
                         },
                     },
+                },
+            },
+            plugins: {
+                datalabels: {
+                    color: "white",
+                    formatter: function (value) {
+                        return value >= 1000000
+                            ? "$" + (value / 1000000).toFixed(1) + "M"
+                            : "$" + (value / 1000).toFixed(1) + "K";
+                    },
+                    backgroundColor: function (context) {
+                        return context.dataset.borderColor;
+                    },
+                    borderRadius: 4,
+                    padding: 4,
+                    font: {
+                        weight: "bold",
+                        size: 11,
+                    },
+                    display: "auto",
+                    anchor: "end",
+                    align: "end",
                 },
             },
         },
@@ -151,9 +178,7 @@ onMounted(() => {
                                 class="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-base-content"
                             >
                                 {{
-                                    numberFormatter.format(
-                                        customer.total_sales
-                                    )
+                                    numberFormatter.format(customer.total_sales)
                                 }}
                             </td>
                         </tr>
