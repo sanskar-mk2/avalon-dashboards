@@ -92,8 +92,8 @@ new MutationObserver((mutations) => {
 });
 
 onMounted(() => {
-    createCustomerChart();
     current_theme.value = document.documentElement.getAttribute("data-theme");
+    createCustomerChart();
 });
 </script>
 

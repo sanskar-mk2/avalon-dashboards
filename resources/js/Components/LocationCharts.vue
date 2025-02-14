@@ -127,8 +127,8 @@ new MutationObserver((mutations) => {
 });
 
 onMounted(() => {
-    createLocationChart();
     current_theme.value = document.documentElement.getAttribute("data-theme");
+    createLocationChart();
 });
 </script>
 

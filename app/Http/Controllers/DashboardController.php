@@ -131,19 +131,19 @@ class DashboardController extends Controller
                 'datasets' => [
                     [
                         'label' => $latest_period,
-                        'data' => $location_data->pluck('total_sales')->values()->all()
-                    ]
-                ]
+                        'data' => $location_data->pluck('total_sales')->values()->all(),
+                    ],
+                ],
             ],
             'gp_by_location' => [
-                'labels' => $location_abbreviations->values()->all(), 
+                'labels' => $location_abbreviations->values()->all(),
                 'datasets' => [
                     [
                         'label' => $latest_period,
-                        'data' => $location_data->pluck('total_gp')->values()->all()
-                    ]
-                ]
-            ]
+                        'data' => $location_data->pluck('total_gp')->values()->all(),
+                    ],
+                ],
+            ],
         ];
     }
 
@@ -358,9 +358,9 @@ class DashboardController extends Controller
             'datasets' => [
                 [
                     'label' => $latest_period,
-                    'data' => $inventory_data->pluck('qty_on_hand')->values()->all()
-                ]
-            ]
+                    'data' => $inventory_data->pluck('qty_on_hand')->values()->all(),
+                ],
+            ],
         ];
     }
 }

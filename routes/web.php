@@ -39,4 +39,20 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
 });
 
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/', DashboardController::class)->name('dashboard');
+
+    Route::resource('sales', SaleController::class);
+    Route::delete('sales/delete-all', [SaleController::class, 'deleteAll'])->name('sales.delete-all');
+
+    Route::resource('open_orders', OpenOrderController::class);
+    Route::delete('open_orders/delete-all', [OpenOrderController::class, 'deleteAll'])->name('open_orders.delete-all');
+
+    Route::resource('account_receivables', AccountReceivableController::class);
+    Route::delete('account_receivables/delete-all', [AccountReceivableController::class, 'deleteAll'])->name('account_receivables.delete-all');
+
+    Route::resource('inventories', InventoryController::class);
+    Route::delete('inventories/delete-all', [InventoryController::class, 'deleteAll'])->name('inventories.delete-all');
+});
+
 require __DIR__.'/auth.php';

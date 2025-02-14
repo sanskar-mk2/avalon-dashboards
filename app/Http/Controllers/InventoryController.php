@@ -12,12 +12,24 @@ class InventoryController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $inventories = Inventory::paginate(8);
+        $availableMonths = Inventory::select('uploaded_for_month')
+            ->distinct()
+            ->orderBy('uploaded_for_month', 'desc')
+            ->pluck('uploaded_for_month');
+
+        $currentMonth = $request->get('month', $availableMonths->first());
+
+        $inventories = Inventory::when($currentMonth, function ($query) use ($currentMonth) {
+            $query->where('uploaded_for_month', $currentMonth);
+        })
+            ->paginate(8);
 
         return Inertia::render('Inventories/Index', [
             'inventories' => $inventories,
+            'availableMonths' => $availableMonths,
+            'currentMonth' => $currentMonth,
         ]);
     }
 
@@ -36,9 +48,18 @@ class InventoryController extends Controller
     {
         $request->validate([
             'file' => 'required|file|mimes:csv,txt',
+            'month' => 'required|integer|between:1,12',
+            'year' => 'required|integer|min:2000',
+            'replace' => 'boolean',
         ]);
 
         $path = $request->file('file')->store('temp');
+        $uploaded_for_month = date('Y-m-d', strtotime($request->year.'-'.$request->month.'-01'));
+
+        // If replace is true, delete existing records for the month
+        if ($request->boolean('replace')) {
+            Inventory::where('uploaded_for_month', $uploaded_for_month)->delete();
+        }
 
         // Set UTF-8 encoding for reading CSV
         $collection = (new FastExcel)
@@ -48,7 +69,7 @@ class InventoryController extends Controller
         // Split collection into chunks of 1000 records and save to DB
         $chunks = $collection->chunk(1000);
         foreach ($chunks as $chunk) {
-            $records = $chunk->map(function ($row) {
+            $records = $chunk->map(function ($row) use ($uploaded_for_month) {
                 $fields = array_values($row);
 
                 // Ensure all string values are UTF-8 encoded
@@ -75,6 +96,7 @@ class InventoryController extends Controller
                     'laminate_material' => $sanitizeString($fields[11] ?? null),
                     'laminate_color' => $sanitizeString($fields[12] ?? null),
                     'as_of_date' => $fields[13] ? date('Y-m-d', strtotime($fields[13])) : null,
+                    'uploaded_for_month' => $uploaded_for_month,
                 ];
             })->toArray();
 
@@ -124,5 +146,22 @@ class InventoryController extends Controller
         Inventory::truncate();
 
         return redirect()->route('inventories.index')->with('success', 'All inventories deleted successfully');
+    }
+
+    /**
+     * Check if data exists for a given month.
+     */
+    public function checkExistingData(Request $request)
+    {
+        $request->validate([
+            'month' => 'required|integer|between:1,12',
+            'year' => 'required|integer|min:2000',
+        ]);
+
+        $uploaded_for_month = date('Y-m-d', strtotime($request->year.'-'.$request->month.'-01'));
+
+        $exists = Inventory::where('uploaded_for_month', $uploaded_for_month)->exists();
+
+        return response()->json(['exists' => $exists]);
     }
 }

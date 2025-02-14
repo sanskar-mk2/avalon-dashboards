@@ -12,12 +12,24 @@ class OpenOrderController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $open_orders = OpenOrder::paginate(8);
+        $availableMonths = OpenOrder::select('uploaded_for_month')
+            ->distinct()
+            ->orderBy('uploaded_for_month', 'desc')
+            ->pluck('uploaded_for_month');
+
+        $currentMonth = $request->get('month', $availableMonths->first());
+
+        $open_orders = OpenOrder::when($currentMonth, function ($query) use ($currentMonth) {
+            $query->where('uploaded_for_month', $currentMonth);
+        })
+            ->paginate(8);
 
         return Inertia::render('OpenOrders/Index', [
             'open_orders' => $open_orders,
+            'availableMonths' => $availableMonths,
+            'currentMonth' => $currentMonth,
         ]);
     }
 
@@ -41,9 +53,18 @@ class OpenOrderController extends Controller
     {
         $request->validate([
             'file' => 'required|file|mimes:csv,txt',
+            'month' => 'required|integer|between:1,12',
+            'year' => 'required|integer|min:2000',
+            'replace' => 'boolean',
         ]);
 
         $path = $request->file('file')->store('temp');
+        $uploaded_for_month = date('Y-m-d', strtotime($request->year.'-'.$request->month.'-01'));
+
+        // If replace is true, delete existing records for the month
+        if ($request->boolean('replace')) {
+            OpenOrder::where('uploaded_for_month', $uploaded_for_month)->delete();
+        }
 
         // Set UTF-8 encoding for reading CSV
         $collection = (new FastExcel)
@@ -53,7 +74,7 @@ class OpenOrderController extends Controller
         // Split collection into chunks of 1000 records and save to DB
         $chunks = $collection->chunk(1000);
         foreach ($chunks as $chunk) {
-            $records = $chunk->map(function ($row) {
+            $records = $chunk->map(function ($row) use ($uploaded_for_month) {
                 $fields = array_values($row);
 
                 // Ensure all string values are UTF-8 encoded
@@ -102,6 +123,7 @@ class OpenOrderController extends Controller
                     'requested_ship_date' => $fields[32] ?? null,
                     'customer_desire_date' => $fields[33] ? date('Y-m-d', strtotime($fields[33])) : null,
                     'mfg_code' => $sanitizeString($fields[34] ?? null),
+                    'uploaded_for_month' => $uploaded_for_month,
                 ];
             })->toArray();
 
@@ -151,5 +173,22 @@ class OpenOrderController extends Controller
         OpenOrder::truncate();
 
         return back()->with('success', 'All Open Order records deleted successfully');
+    }
+
+    /**
+     * Check if data exists for a given month.
+     */
+    public function checkExistingData(Request $request)
+    {
+        $request->validate([
+            'month' => 'required|integer|between:1,12',
+            'year' => 'required|integer|min:2000',
+        ]);
+
+        $uploaded_for_month = date('Y-m-d', strtotime($request->year.'-'.$request->month.'-01'));
+
+        $exists = OpenOrder::where('uploaded_for_month', $uploaded_for_month)->exists();
+
+        return response()->json(['exists' => $exists]);
     }
 }

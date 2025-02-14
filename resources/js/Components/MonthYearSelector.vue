@@ -1,0 +1,51 @@
+<script setup>
+import { ref, watch } from "vue";
+import { router } from "@inertiajs/vue3";
+
+const props = defineProps({
+    availableMonths: {
+        type: Array,
+        default: () => [],
+    },
+    currentMonth: {
+        type: String,
+        required: true,
+    },
+});
+
+const selectedMonth = ref(props.currentMonth);
+
+watch(selectedMonth, (newValue) => {
+    router.get(
+        route(route().current()),
+        { month: newValue },
+        {
+            preserveState: true,
+            preserveScroll: true,
+            replace: true,
+        }
+    );
+});
+</script>
+
+<template>
+    <div class="flex items-center gap-2">
+        <select
+            v-model="selectedMonth"
+            class="select select-secondary select-sm sm:select-md text-xs sm:text-sm"
+        >
+            <option
+                v-for="month in availableMonths"
+                :key="month"
+                :value="month"
+            >
+                {{
+                    new Date(month).toLocaleDateString("en-US", {
+                        month: "long",
+                        year: "numeric",
+                    })
+                }}
+            </option>
+        </select>
+    </div>
+</template>

@@ -39,7 +39,7 @@ const createInventoryChart = () => {
     }
 
     const chartData = { ...props.us_warehouse_inventory };
-    chartData.datasets = chartData.datasets.map(dataset => ({
+    chartData.datasets = chartData.datasets.map((dataset) => ({
         ...dataset,
         backgroundColor: getThemeColor.value.primary + "80",
         borderColor: getThemeColor.value.primary,
@@ -55,22 +55,22 @@ const createInventoryChart = () => {
                     beginAtZero: true,
                     title: {
                         display: true,
-                        text: 'Quantity on Hand'
-                    }
+                        text: "Quantity on Hand",
+                    },
                 },
                 x: {
                     title: {
                         display: true,
-                        text: 'Item Number'
-                    }
-                }
+                        text: "Item Number",
+                    },
+                },
             },
             plugins: {
                 title: {
                     display: true,
-                    text: 'US Warehouse Inventory Levels'
-                }
-            }
+                    text: "US Warehouse Inventory Levels",
+                },
+            },
         },
     });
 };
@@ -88,8 +88,8 @@ new MutationObserver((mutations) => {
 });
 
 onMounted(() => {
-    createInventoryChart();
     current_theme.value = document.documentElement.getAttribute("data-theme");
+    createInventoryChart();
 });
 </script>
 
