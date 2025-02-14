@@ -14,7 +14,8 @@ const props = defineProps({
     },
     checkExistingRoute: {
         type: String,
-        required: true,
+        default: null,
+        required: false,
     },
     showDateSelectors: {
         type: Boolean,
@@ -62,21 +63,18 @@ const submitForm = () => {
     form.post(route(props.storeRoute), {
         preserveScroll: true,
         onStart: () => (isUploading.value = true),
-        onFinish: () => {
-            isUploading.value = false;
-            form.reset();
-            form.month = new Date().getMonth() + 1;
-            form.year = new Date().getFullYear();
-            const modal = document.getElementById("confirmDialog");
-            modal.close();
-        },
+        onFinish: () => {},
     });
 };
 
 const handleSubmit = (e) => {
     e.preventDefault();
     if (!form.file) return;
-    checkExistingData();
+    if (props.checkExistingRoute) {
+        checkExistingData();
+    } else {
+        submitForm();
+    }
 };
 
 const closeModal = () => {
