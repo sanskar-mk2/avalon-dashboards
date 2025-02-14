@@ -1,0 +1,105 @@
+<script setup>
+import { ref, onMounted, computed } from "vue";
+import Chart from "chart.js/auto";
+import theme from "daisyui/src/theming/themes";
+import Color from "colorjs.io";
+
+const props = defineProps({
+    us_warehouse_inventory: Object,
+});
+
+const inventoryChartRef = ref(null);
+let inventoryChart = null;
+const current_theme = ref(null);
+
+const getThemeColor = computed(() => {
+    const theme_obj = theme[current_theme.value];
+    if (!theme_obj) {
+        return {};
+    }
+    const color_keys = Object.keys(theme_obj).filter(
+        (key) =>
+            !key.startsWith("--") &&
+            key !== "color-scheme" &&
+            key !== "fontFamily"
+    );
+    const color_obj = {};
+    color_keys.forEach((key) => {
+        color_obj[key] = new Color(theme_obj[key])
+            .toGamut({ space: "srgb" })
+            .to("srgb")
+            .toString({ format: "hex" });
+    });
+    return color_obj;
+});
+
+const createInventoryChart = () => {
+    if (inventoryChart) {
+        inventoryChart.destroy();
+    }
+
+    const chartData = { ...props.us_warehouse_inventory };
+    chartData.datasets = chartData.datasets.map(dataset => ({
+        ...dataset,
+        backgroundColor: getThemeColor.value.primary + "80",
+        borderColor: getThemeColor.value.primary,
+        borderWidth: 1,
+    }));
+
+    inventoryChart = new Chart(inventoryChartRef.value, {
+        type: "bar",
+        data: chartData,
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Quantity on Hand'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Item Number'
+                    }
+                }
+            },
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'US Warehouse Inventory Levels'
+                }
+            }
+        },
+    });
+};
+
+// Watch for theme changes
+new MutationObserver((mutations) => {
+    if (mutations.some((m) => m.attributeName === "data-theme")) {
+        current_theme.value =
+            document.documentElement.getAttribute("data-theme");
+        createInventoryChart();
+    }
+}).observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ["data-theme"],
+});
+
+onMounted(() => {
+    createInventoryChart();
+    current_theme.value = document.documentElement.getAttribute("data-theme");
+});
+</script>
+
+<template>
+    <div class="flex justify-center mt-10">
+        <div class="w-full mx-4 card bg-base-100 p-4">
+            <h2 class="text-lg sm:text-xl font-semibold mb-4">
+                US Warehouse Inventory
+            </h2>
+            <canvas ref="inventoryChartRef"></canvas>
+        </div>
+    </div>
+</template>

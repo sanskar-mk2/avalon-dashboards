@@ -5,6 +5,7 @@ import DashboardCards from "@/Components/DashboardCards.vue";
 import LocationCharts from "@/Components/LocationCharts.vue";
 import SalespersonCharts from "@/Components/SalespersonCharts.vue";
 import CustomerCharts from "@/Components/CustomerCharts.vue";
+import InventoryCharts from "@/Components/InventoryCharts.vue";
 
 const props = defineProps({
     cards_data: Object,
@@ -14,6 +15,7 @@ const props = defineProps({
     top_sales_by_salesperson: Object,
     sales_by_customer: Object,
     top_sales_by_customer: Object,
+    us_warehouse_inventory: Object,
 });
 </script>
 
@@ -48,6 +50,10 @@ const props = defineProps({
                 <CustomerCharts
                     :sales_by_customer="sales_by_customer"
                     :top_sales_by_customer="top_sales_by_customer"
+                />
+
+                <InventoryCharts
+                    :us_warehouse_inventory="us_warehouse_inventory"
                 />
             </div>
         </div>

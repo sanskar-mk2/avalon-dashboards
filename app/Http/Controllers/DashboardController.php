@@ -25,6 +25,7 @@ class DashboardController extends Controller
             'top_sales_by_salesperson' => $this->getTopSalesBySalesperson(),
             'sales_by_customer' => $this->getSalesByCustomer(),
             'top_sales_by_customer' => $this->getTopSalesByCustomer(),
+            'us_warehouse_inventory' => $this->getUSWarehouseInventory(),
         ]);
     }
 
@@ -334,5 +335,32 @@ class DashboardController extends Controller
             ->orderBy('highest_sale', 'desc')
             ->take(10)
             ->get();
+    }
+
+    private function getUSWarehouseInventory()
+    {
+        $latest_period = Inventory::select('fiscal_period')
+            ->distinct()
+            ->orderBy('fiscal_period', 'desc')
+            ->first()
+            ->fiscal_period;
+
+        $inventory_data = Inventory::where('location', '10')
+            ->where('fiscal_period', $latest_period)
+            ->where('qty_on_hand', '>', 0)
+            ->select('item_no', 'qty_on_hand')
+            ->orderBy('qty_on_hand', 'desc')
+            ->limit(30)
+            ->get();
+
+        return [
+            'labels' => $inventory_data->pluck('item_no')->values()->all(),
+            'datasets' => [
+                [
+                    'label' => $latest_period,
+                    'data' => $inventory_data->pluck('qty_on_hand')->values()->all()
+                ]
+            ]
+        ];
     }
 }
