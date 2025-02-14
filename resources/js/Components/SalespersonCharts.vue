@@ -91,6 +91,15 @@ new MutationObserver((mutations) => {
     attributeFilter: ["data-theme"],
 });
 
+// Watch for data changes
+watch(
+    () => props.sales_by_salesperson,
+    () => {
+        createSalespersonChart();
+    },
+    { deep: true }
+);
+
 onMounted(() => {
     current_theme.value = document.documentElement.getAttribute("data-theme");
     createSalespersonChart();
@@ -101,7 +110,7 @@ onMounted(() => {
     <div class="flex justify-center flex-wrap sm:flex-nowrap mt-10 gap-8">
         <div class="sm:basis-1/3 w-full mx-4 sm:mx-0 card bg-base-100 p-4">
             <h2 class="text-lg sm:text-xl font-semibold mb-4">
-                Top Sales By Salesperson
+                Sales By Salesperson
             </h2>
             <div class="h-full sm:h-[300px] overflow-y-auto">
                 <table
@@ -139,7 +148,7 @@ onMounted(() => {
                             >
                                 {{
                                     numberFormatter.format(
-                                        salesperson.highest_sale
+                                        salesperson.total_sales
                                     )
                                 }}
                             </td>

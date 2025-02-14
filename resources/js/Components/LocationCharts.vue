@@ -40,7 +40,7 @@ const getThemeColor = computed(() => {
             .to("srgb")
             .toString({ format: "hex" });
     });
-    console.log(color_obj);
+
     return color_obj;
 });
 
@@ -126,6 +126,15 @@ new MutationObserver((mutations) => {
     attributeFilter: ["data-theme"],
 });
 
+// Watch for data changes
+watch(
+    () => props.location_chart_data,
+    () => {
+        createLocationChart();
+    },
+    { deep: true }
+);
+
 onMounted(() => {
     current_theme.value = document.documentElement.getAttribute("data-theme");
     createLocationChart();
@@ -148,7 +157,7 @@ onMounted(() => {
         </div>
         <div class="sm:basis-1/3 w-full mx-4 sm:mx-0 card bg-base-100 p-4">
             <h2 class="text-lg sm:text-xl font-semibold mb-4">
-                Top Sales By Location
+                Sales By Location
             </h2>
             <div class="h-full sm:h-[300px] overflow-y-auto">
                 <table
@@ -187,7 +196,7 @@ onMounted(() => {
                             >
                                 {{
                                     numberFormatter.format(
-                                        location.highest_sale
+                                        location.total_sales
                                     )
                                 }}
                             </td>

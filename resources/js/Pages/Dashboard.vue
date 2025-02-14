@@ -6,6 +6,7 @@ import LocationCharts from "@/Components/LocationCharts.vue";
 import SalespersonCharts from "@/Components/SalespersonCharts.vue";
 import CustomerCharts from "@/Components/CustomerCharts.vue";
 import InventoryCharts from "@/Components/InventoryCharts.vue";
+import MonthYearSelector from "@/Components/MonthYearSelector.vue";
 
 const props = defineProps({
     cards_data: Object,
@@ -16,6 +17,8 @@ const props = defineProps({
     sales_by_customer: Object,
     top_sales_by_customer: Object,
     us_warehouse_inventory: Object,
+    availableMonths: Array,
+    currentMonth: String,
 });
 </script>
 
@@ -24,13 +27,20 @@ const props = defineProps({
 
     <AuthenticatedLayout>
         <template #header>
-            <h2 class="text-xl font-semibold leading-tight">
-                <div class="breadcrumbs text-sm text-base-content">
-                    <ul>
-                        <li>Home</li>
-                    </ul>
-                </div>
-            </h2>
+            <div class="flex w-full mr-4 justify-between items-center">
+                <h2 class="text-xl font-semibold leading-tight">
+                    <div class="breadcrumbs text-sm text-base-content">
+                        <ul>
+                            <li>Home</li>
+                        </ul>
+                    </div>
+                </h2>
+                <MonthYearSelector
+                    v-if="availableMonths && currentMonth"
+                    :available-months="availableMonths"
+                    :current-month="currentMonth"
+                />
+            </div>
         </template>
 
         <div class="py-12">

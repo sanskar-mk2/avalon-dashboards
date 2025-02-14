@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, watch, computed } from "vue";
 import Chart from "chart.js/auto";
 import theme from "daisyui/src/theming/themes";
 import Color from "colorjs.io";
@@ -91,6 +91,15 @@ new MutationObserver((mutations) => {
     attributeFilter: ["data-theme"],
 });
 
+// Watch for data changes
+watch(
+    () => props.sales_by_customer,
+    () => {
+        createCustomerChart();
+    },
+    { deep: true }
+);
+
 onMounted(() => {
     current_theme.value = document.documentElement.getAttribute("data-theme");
     createCustomerChart();
@@ -107,7 +116,7 @@ onMounted(() => {
         </div>
         <div class="sm:basis-1/3 w-full mx-4 sm:mx-0 card bg-base-100 p-4">
             <h2 class="text-lg sm:text-xl font-semibold mb-4">
-                Top Sales By Customer
+                Sales By Customer
             </h2>
             <div class="h-full sm:h-[300px] overflow-y-auto">
                 <table
@@ -143,7 +152,7 @@ onMounted(() => {
                             >
                                 {{
                                     numberFormatter.format(
-                                        customer.highest_sale
+                                        customer.total_sales
                                     )
                                 }}
                             </td>

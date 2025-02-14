@@ -46,7 +46,8 @@ const checkExistingData = async () => {
         });
 
         if (response.data.exists) {
-            showConfirmDialog.value = true;
+            const modal = document.getElementById("confirmDialog");
+            modal.showModal();
         } else {
             submitForm();
         }
@@ -66,7 +67,8 @@ const submitForm = () => {
             form.reset();
             form.month = new Date().getMonth() + 1;
             form.year = new Date().getFullYear();
-            showConfirmDialog.value = false;
+            const modal = document.getElementById("confirmDialog");
+            modal.close();
         },
     });
 };
@@ -78,7 +80,8 @@ const handleSubmit = (e) => {
 };
 
 const closeModal = () => {
-    showConfirmDialog.value = false;
+    const modal = document.getElementById("confirmDialog");
+    modal.close();
     form.replace = false; // Reset replace flag when closing modal
 };
 
@@ -184,7 +187,7 @@ const years = Array.from(
         </div>
 
         <!-- Confirmation Dialog -->
-        <div v-if="showConfirmDialog" class="modal modal-open">
+        <dialog id="confirmDialog" class="modal">
             <div class="modal-box">
                 <h3 class="font-bold text-lg">Data Already Exists</h3>
                 <p class="py-4">
@@ -212,16 +215,17 @@ const years = Array.from(
                     >
                         Append
                     </button>
-                    <button
-                        @click="closeModal"
-                        :disabled="isUploading"
-                        class="btn"
-                    >
-                        Cancel
-                    </button>
+                    <form method="dialog">
+                        <button
+                            @click="closeModal"
+                            :disabled="isUploading"
+                            class="btn"
+                        >
+                            Cancel
+                        </button>
+                    </form>
                 </div>
             </div>
-            <div class="modal-backdrop" @click="closeModal"></div>
-        </div>
+        </dialog>
     </form>
 </template>

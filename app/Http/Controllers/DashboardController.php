@@ -17,80 +17,73 @@ class DashboardController extends Controller
      */
     public function __invoke(Request $request)
     {
+        // Get available months from all tables
+        $available_months = collect([
+            Sale::distinct()->pluck('uploaded_for_month'),
+            OpenOrder::distinct()->pluck('uploaded_for_month'),
+            Inventory::distinct()->pluck('uploaded_for_month'),
+            AccountReceivable::distinct()->pluck('uploaded_for_month')
+        ])->flatten()->unique()->sort()->values();
+
+        // Get latest uploaded month from all tables if no month selected
+        $current_month = $request->get('month') ?? max([
+            Sale::max('uploaded_for_month'),
+            OpenOrder::max('uploaded_for_month'),
+            Inventory::max('uploaded_for_month'),
+            AccountReceivable::max('uploaded_for_month')
+        ]);
+
         return Inertia::render('Dashboard', [
-            'cards_data' => $this->getCardsData(),
-            'location_chart_data' => $this->getLocationChartData(),
-            'top_sales_by_location' => $this->getTopSalesByLocation(),
-            'sales_by_salesperson' => $this->getSalesBySalesperson(),
-            'top_sales_by_salesperson' => $this->getTopSalesBySalesperson(),
-            'sales_by_customer' => $this->getSalesByCustomer(),
-            'top_sales_by_customer' => $this->getTopSalesByCustomer(),
-            'us_warehouse_inventory' => $this->getUSWarehouseInventory(),
+            'availableMonths' => $available_months,
+            'currentMonth' => $current_month,
+            'cards_data' => $this->getCardsData($current_month),
+            'location_chart_data' => $this->getLocationChartData($current_month),
+            'top_sales_by_location' => $this->getTopSalesByLocation($current_month),
+            'sales_by_salesperson' => $this->getSalesBySalesperson($current_month),
+            'top_sales_by_salesperson' => $this->getTopSalesBySalesperson($current_month),
+            'sales_by_customer' => $this->getSalesByCustomer($current_month),
+            'top_sales_by_customer' => $this->getTopSalesByCustomer($current_month),
+            'us_warehouse_inventory' => $this->getUSWarehouseInventory($current_month),
         ]);
     }
 
-    private function getCardsData()
+    private function getCardsData($current_month)
     {
-        $lastTwoMonths_sales = Sale::select('period')
-            ->distinct()
-            ->orderBy('period', 'desc')
-            ->take(2)
-            ->pluck('period');
+        // Get previous month
+        $prev_month = date('Y-m-d', strtotime($current_month . '-1 month'));
 
-        $sales = Sale::whereIn('period', $lastTwoMonths_sales)
+        // Sales data
+        $sales = Sale::whereIn('period', [$current_month, $prev_month])
             ->groupBy('period')
             ->select('period', DB::raw('SUM(ext_sales) as total_amount'))
             ->orderBy('period', 'desc')
             ->get();
 
-        $lastTwoMonths_open_orders = OpenOrder::select('period')
-            ->distinct()
-            ->orderBy('period', 'desc')
-            ->take(2)
-            ->pluck('period');
-
-        $open_orders = OpenOrder::whereIn('period', $lastTwoMonths_open_orders)
-            ->groupBy('period')
-            ->select('period', DB::raw('SUM(ext_sales) as total_amount'))
-            ->orderBy('period', 'desc')
+        // Open Orders data
+        $open_orders = OpenOrder::whereIn('uploaded_for_month', [$current_month, $prev_month])
+            ->groupBy('uploaded_for_month')
+            ->select('uploaded_for_month as period', DB::raw('SUM(ext_sales) as total_amount'))
+            ->orderBy('uploaded_for_month', 'desc')
             ->get();
 
-        // $active_locations = Sale::whereIn('period', $lastTwoMonths_sales)
-        //     ->groupBy('period')
-        //     ->select(
-        //         'period',
-        //         DB::raw('COUNT(DISTINCT CASE WHEN location IS NOT NULL THEN location END) as count')
-        //     )
-        //     ->orderBy('period', 'desc')
-        //     ->get();
-
-        // $active_salespeople = Sale::whereIn('period', $lastTwoMonths_sales)
-        //     ->groupBy('period')
-        //     ->select(
-        //         'period',
-        //         DB::raw('COUNT(DISTINCT CASE WHEN salesperson IS NOT NULL THEN salesperson END) as count')
-        //     )
-        //     ->orderBy('period', 'desc')
-        //     ->get();
-
-        $total_inventory = Inventory::select('fiscal_period')
-            ->groupBy('fiscal_period')
+        // Inventory data
+        $total_inventory = Inventory::whereIn('uploaded_for_month', [$current_month, $prev_month])
+            ->groupBy('uploaded_for_month')
             ->select(
-                'fiscal_period as period',
+                'uploaded_for_month as period',
                 DB::raw('SUM(qty_on_hand * average_cost) as total_amount')
             )
-            ->orderBy('fiscal_period', 'desc')
-            ->take(2)
+            ->orderBy('uploaded_for_month', 'desc')
             ->get();
 
-        $total_receivables = AccountReceivable::select('fiscal_period')
-            ->groupBy('fiscal_period')
+        // Account Receivables data
+        $total_receivables = AccountReceivable::whereIn('uploaded_for_month', [$current_month, $prev_month])
+            ->groupBy('uploaded_for_month')
             ->select(
-                'fiscal_period as period',
+                'uploaded_for_month as period',
                 DB::raw('SUM(balance_due_amount) as total_amount')
             )
-            ->orderBy('fiscal_period', 'desc')
-            ->take(2)
+            ->orderBy('uploaded_for_month', 'desc')
             ->get();
 
         return [
@@ -101,15 +94,9 @@ class DashboardController extends Controller
         ];
     }
 
-    private function getLocationChartData()
+    private function getLocationChartData($current_month)
     {
-        $latest_period = Sale::select('period')
-            ->distinct()
-            ->orderBy('period', 'desc')
-            ->first()
-            ->period;
-
-        $location_data = Sale::where('period', $latest_period)
+        $location_data = Sale::where('period', $current_month)
             ->groupBy('location')
             ->select(
                 'location',
@@ -130,7 +117,7 @@ class DashboardController extends Controller
                 'labels' => $location_abbreviations->values()->all(),
                 'datasets' => [
                     [
-                        'label' => $latest_period,
+                        'label' => $current_month,
                         'data' => $location_data->pluck('total_sales')->values()->all(),
                     ],
                 ],
@@ -139,7 +126,7 @@ class DashboardController extends Controller
                 'labels' => $location_abbreviations->values()->all(),
                 'datasets' => [
                     [
-                        'label' => $latest_period,
+                        'label' => $current_month,
                         'data' => $location_data->pluck('total_gp')->values()->all(),
                     ],
                 ],
@@ -147,24 +134,18 @@ class DashboardController extends Controller
         ];
     }
 
-    private function getTopSalesByLocation()
+    private function getTopSalesByLocation($current_month)
     {
-        $lastTwoMonths_sales = Sale::select('period')
-            ->distinct()
-            ->orderBy('period', 'desc')
-            ->take(2)
-            ->pluck('period');
-
-        return Sale::whereIn('period', $lastTwoMonths_sales)
+        return Sale::where('period', $current_month)
             ->groupBy('location')
             ->select(
                 'location',
-                DB::raw('MAX(ext_sales) as highest_sale')
+                DB::raw('SUM(ext_sales) as total_sales')
             )
             ->with(['locationModel' => function ($query) {
                 $query->select('id', 'location', 'location_abbreviation');
             }])
-            ->orderBy('highest_sale', 'desc')
+            ->orderBy('total_sales', 'desc')
             ->get()
             ->filter(function ($sale) {
                 return ! is_null($sale->locationModel);
@@ -172,15 +153,11 @@ class DashboardController extends Controller
             ->values();
     }
 
-    private function getSalesBySalesperson()
+    private function getSalesBySalesperson($current_month)
     {
-        $lastTwoMonths_sales = Sale::select('period')
-            ->distinct()
-            ->orderBy('period', 'desc')
-            ->take(2)
-            ->pluck('period');
+        $previous_month = date('Y-m-d', strtotime($current_month . '-1 month'));
 
-        $sales_by_salesperson = Sale::whereIn('period', $lastTwoMonths_sales)
+        $sales_by_salesperson = Sale::whereIn('period', [$current_month, $previous_month])
             ->groupBy('salesperson', 'period')
             ->select(
                 'salesperson',
@@ -195,11 +172,10 @@ class DashboardController extends Controller
                 return ! is_null($sale->salespersonModel);
             });
 
-        $periods = $sales_by_salesperson->pluck('period')->unique()->sortDesc();
-        $latest_period = $periods->first();
+        $periods = collect([$current_month, $previous_month]);
 
         $salesperson_data = $sales_by_salesperson
-            ->where('period', $latest_period)
+            ->where('period', $current_month)
             ->groupBy('salespersonModel.salesman_name')
             ->map(function ($group) {
                 return [
@@ -232,44 +208,35 @@ class DashboardController extends Controller
         ];
     }
 
-    private function getTopSalesBySalesperson()
+    private function getTopSalesBySalesperson($current_month)
     {
-        $lastTwoMonths_sales = Sale::select('period')
-            ->distinct()
-            ->orderBy('period', 'desc')
-            ->take(2)
-            ->pluck('period');
-
-        return Sale::whereIn('period', $lastTwoMonths_sales)
+        return Sale::where('period', $current_month)
             ->groupBy('salesperson')
             ->select(
                 'salesperson',
-                DB::raw('MAX(ext_sales) as highest_sale')
+                DB::raw('SUM(ext_sales) as total_sales')
             )
             ->with(['salespersonModel' => function ($query) {
                 $query->select('id', 'salesman_no', 'salesman_name');
             }])
-            ->orderBy('highest_sale', 'desc')
+            ->orderBy('total_sales', 'desc')
             ->get()
             ->filter(function ($sale) {
                 return ! is_null($sale->salespersonModel);
             })
             ->groupBy('salespersonModel.salesman_name')
             ->map(function ($group) {
-                return $group->sortByDesc('highest_sale')->first();
+                return $group->first();
             })
             ->values();
     }
 
-    private function getSalesByCustomer()
+    private function getSalesByCustomer($current_month)
     {
-        $lastTwoMonths_sales = Sale::select('period')
-            ->distinct()
-            ->orderBy('period', 'desc')
-            ->take(2)
-            ->pluck('period');
+        // Get previous month
+        $prev_month = date('Y-m-d', strtotime($current_month . '-1 month'));
 
-        $sales_by_customer = Sale::whereIn('period', $lastTwoMonths_sales)
+        $sales_by_customer = Sale::whereIn('period', [$current_month, $prev_month])
             ->groupBy('customer_name', 'period')
             ->select(
                 'customer_name',
@@ -280,11 +247,10 @@ class DashboardController extends Controller
             ->orderBy('total_amount', 'desc')
             ->get();
 
-        $periods = $sales_by_customer->pluck('period')->unique()->sortDesc();
-        $latest_period = $periods->first();
+        $periods = collect([$current_month, $prev_month]);
 
         $customer_data = $sales_by_customer
-            ->where('period', $latest_period)
+            ->where('period', $current_month)
             ->groupBy('customer_name')
             ->map(function ($group) {
                 return [
@@ -318,49 +284,90 @@ class DashboardController extends Controller
         ];
     }
 
-    private function getTopSalesByCustomer()
+    private function getTopSalesByCustomer($current_month)
     {
-        $lastTwoMonths_sales = Sale::select('period')
-            ->distinct()
-            ->orderBy('period', 'desc')
-            ->take(2)
-            ->pluck('period');
-
-        return Sale::whereIn('period', $lastTwoMonths_sales)
+        return Sale::where('period', $current_month)
             ->groupBy('customer_name')
             ->select(
                 'customer_name',
-                DB::raw('MAX(ext_sales) as highest_sale')
+                DB::raw('SUM(ext_sales) as total_sales')
             )
-            ->orderBy('highest_sale', 'desc')
+            ->orderBy('total_sales', 'desc')
             ->take(10)
             ->get();
     }
 
-    private function getUSWarehouseInventory()
+    private function getUSWarehouseInventory($current_month)
     {
-        $latest_period = Inventory::select('fiscal_period')
+        // Get all months up to current month
+        $months = Inventory::where('uploaded_for_month', '<=', $current_month)
             ->distinct()
-            ->orderBy('fiscal_period', 'desc')
-            ->first()
-            ->fiscal_period;
+            ->orderBy('uploaded_for_month', 'desc')
+            ->pluck('uploaded_for_month');
 
-        $inventory_data = Inventory::where('location', '10')
-            ->where('fiscal_period', $latest_period)
-            ->where('qty_on_hand', '>', 0)
-            ->select('item_no', 'qty_on_hand')
-            ->orderBy('qty_on_hand', 'desc')
-            ->limit(30)
-            ->get();
+        $data = $months->map(function($period) use ($months) {
+            // Get inventory value for current period
+            $inventory_value = Inventory::where('location', '10')
+                ->where('uploaded_for_month', $period)
+                ->where('qty_on_hand', '>', 0)
+                ->sum(DB::raw('qty_on_hand * average_cost'));
+
+            // Get inventory value for previous period if exists
+            $prev_period = $months->where('uploaded_for_month', '<', $period)->first();
+            $prev_inventory_value = 0;
+            if ($prev_period) {
+                $prev_inventory_value = Inventory::where('location', '10')
+                    ->where('uploaded_for_month', $prev_period)
+                    ->where('qty_on_hand', '>', 0)
+                    ->sum(DB::raw('qty_on_hand * average_cost'));
+            }
+
+            // Calculate average inventory value
+            $avg_inventory_value = ($inventory_value + $prev_inventory_value) / 2;
+
+            // Get sales and COGS
+            $sales_data = Sale::where('period', $period)
+                ->where('location', '10')
+                ->select(
+                    DB::raw('SUM(ext_sales) as total_sales'),
+                    DB::raw('SUM(ext_cost) as total_cogs')
+                )
+                ->first();
+
+            // Calculate inventory turn using average inventory value
+            $inventory_turn = $avg_inventory_value > 0 
+                ? ($sales_data->total_cogs / $avg_inventory_value) * 12 
+                : 0;
+
+            return [
+                'period' => $period,
+                'inventory_value' => $inventory_value,
+                'sales' => $sales_data->total_sales ?? 0,
+                'cogs' => $sales_data->total_cogs ?? 0,
+                'inventory_turn' => $inventory_turn
+            ];
+        });
 
         return [
-            'labels' => $inventory_data->pluck('item_no')->values()->all(),
+            'labels' => $months->values()->all(),
             'datasets' => [
                 [
-                    'label' => $latest_period,
-                    'data' => $inventory_data->pluck('qty_on_hand')->values()->all(),
+                    'label' => 'Inventory Value',
+                    'data' => $data->pluck('inventory_value')->values()->all()
                 ],
-            ],
+                [
+                    'label' => 'Sales',
+                    'data' => $data->pluck('sales')->values()->all()
+                ],
+                [
+                    'label' => 'COGS',
+                    'data' => $data->pluck('cogs')->values()->all()
+                ],
+                [
+                    'label' => 'Inventory Turn',
+                    'data' => $data->pluck('inventory_turn')->values()->all()
+                ]
+            ]
         ];
     }
 }
