@@ -22,20 +22,20 @@ class OpenOrderController extends Controller
         $currentMonth = $request->get('month', $availableMonths->first());
 
         $open_orders = OpenOrder::select(
-                'location',
-                'order_no',
-                'order_date', 
-                'customer_no',
-                'customer_name',
-                'item_no',
-                'item_desc',
-                'qty',
-                'ext_sales',
-                'ext_cost',
-                'period',
-                'mfg_code',
-                'requested_ship_date'
-            )
+            'location',
+            'order_no',
+            'order_date',
+            'customer_no',
+            'customer_name',
+            'item_no',
+            'item_desc',
+            'qty',
+            'ext_sales',
+            'ext_cost',
+            'period',
+            'mfg_code',
+            'requested_ship_date'
+        )
             ->when($currentMonth, function ($query) use ($currentMonth) {
                 $query->where('uploaded_for_month', $currentMonth);
             })

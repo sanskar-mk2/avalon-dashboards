@@ -66,7 +66,7 @@ class InventoryController extends Controller
         ]);
 
         $path = $request->file('file')->store('temp');
-        $uploaded_for_month = date('Y-m-d', strtotime($request->year . '-' . $request->month . '-01'));
+        $uploaded_for_month = date('Y-m-d', strtotime($request->year.'-'.$request->month.'-01'));
 
         // If replace is true, delete existing records for the month
         if ($request->boolean('replace')) {
@@ -76,7 +76,7 @@ class InventoryController extends Controller
         // Set UTF-8 encoding for reading CSV
         $collection = (new FastExcel)
             ->configureCsv(',')
-            ->import(storage_path('app/private/' . $path));
+            ->import(storage_path('app/private/'.$path));
 
         // Split collection into chunks of 1000 records and save to DB
         $chunks = $collection->chunk(1000);
@@ -95,7 +95,7 @@ class InventoryController extends Controller
 
                 return [
                     'company_no' => $fields[0] ?? null,
-                    'fiscal_period' => $fields[1] ? date('Y-m-d', strtotime($fields[1] . '01')) : null,
+                    'fiscal_period' => $fields[1] ? date('Y-m-d', strtotime($fields[1].'01')) : null,
                     'location' => $sanitizeString($fields[2] ?? null),
                     'item_no' => $sanitizeString($fields[3] ?? null),
                     'qty_on_hand' => $fields[4] ?? null,
@@ -116,7 +116,7 @@ class InventoryController extends Controller
         }
 
         // Delete temporary file
-        unlink(storage_path('app/private/' . $path));
+        unlink(storage_path('app/private/'.$path));
 
         return redirect()->route('inventories.index')->with('success', 'Inventories imported successfully');
     }
@@ -170,7 +170,7 @@ class InventoryController extends Controller
             'year' => 'required|integer|min:2000',
         ]);
 
-        $uploaded_for_month = date('Y-m-d', strtotime($request->year . '-' . $request->month . '-01'));
+        $uploaded_for_month = date('Y-m-d', strtotime($request->year.'-'.$request->month.'-01'));
 
         $exists = Inventory::where('uploaded_for_month', $uploaded_for_month)->exists();
 

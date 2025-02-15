@@ -22,7 +22,7 @@ class DashboardController extends Controller
             Sale::distinct()->pluck('uploaded_for_month'),
             OpenOrder::distinct()->pluck('uploaded_for_month'),
             Inventory::distinct()->pluck('uploaded_for_month'),
-            AccountReceivable::distinct()->pluck('uploaded_for_month')
+            AccountReceivable::distinct()->pluck('uploaded_for_month'),
         ])->flatten()->unique()->sort()->values();
 
         // Get latest uploaded month from all tables if no month selected
@@ -30,7 +30,7 @@ class DashboardController extends Controller
             Sale::max('uploaded_for_month'),
             OpenOrder::max('uploaded_for_month'),
             Inventory::max('uploaded_for_month'),
-            AccountReceivable::max('uploaded_for_month')
+            AccountReceivable::max('uploaded_for_month'),
         ]);
 
         return Inertia::render('Dashboard', [
@@ -50,7 +50,7 @@ class DashboardController extends Controller
     private function getCardsData($current_month)
     {
         // Get previous month
-        $prev_month = date('Y-m-d', strtotime($current_month . '-1 month'));
+        $prev_month = date('Y-m-d', strtotime($current_month.'-1 month'));
 
         // Sales data
         $sales = Sale::whereIn('period', [$current_month, $prev_month])
@@ -189,7 +189,7 @@ class DashboardController extends Controller
                 [
                     'label' => $current_month,
                     'data' => $salesperson_data->pluck('total_amount')->values()->all(),
-                ]
+                ],
             ],
             'salesperson_mapping' => $salesperson_mapping,
         ];
@@ -247,7 +247,7 @@ class DashboardController extends Controller
                 [
                     'label' => $current_month,
                     'data' => $customer_data->pluck('total_amount')->values()->all(),
-                ]
+                ],
             ],
         ];
     }
@@ -270,7 +270,7 @@ class DashboardController extends Controller
         // Get all months up to current month
         $months = Inventory::where('uploaded_for_month', '<=', $current_month)
             ->distinct()
-            ->orderBy('uploaded_for_month', 'desc')
+            ->orderBy('uploaded_for_month', 'asc') // Changed to ascending order
             ->pluck('uploaded_for_month');
 
         $data = $months->map(function ($period) use ($months) {
@@ -312,7 +312,7 @@ class DashboardController extends Controller
                 'inventory_value' => $inventory_value,
                 'sales' => $sales_data->total_sales ?? 0,
                 'cogs' => $sales_data->total_cogs ?? 0,
-                'inventory_turn' => $inventory_turn
+                'inventory_turn' => $inventory_turn,
             ];
         });
 
@@ -321,21 +321,21 @@ class DashboardController extends Controller
             'datasets' => [
                 [
                     'label' => 'Inventory Value',
-                    'data' => $data->pluck('inventory_value')->values()->all()
+                    'data' => $data->pluck('inventory_value')->values()->all(),
                 ],
                 [
                     'label' => 'Sales',
-                    'data' => $data->pluck('sales')->values()->all()
+                    'data' => $data->pluck('sales')->values()->all(),
                 ],
                 [
                     'label' => 'COGS',
-                    'data' => $data->pluck('cogs')->values()->all()
+                    'data' => $data->pluck('cogs')->values()->all(),
                 ],
                 [
                     'label' => 'Inventory Turn',
-                    'data' => $data->pluck('inventory_turn')->values()->all()
-                ]
-            ]
+                    'data' => $data->pluck('inventory_turn')->values()->all(),
+                ],
+            ],
         ];
     }
 }
