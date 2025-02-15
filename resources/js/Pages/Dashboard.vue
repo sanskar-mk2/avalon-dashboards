@@ -50,14 +50,17 @@ const props = defineProps({
                 <LocationCharts
                     :location_chart_data="location_chart_data"
                     :top_sales_by_location="top_sales_by_location"
+                    :month="currentMonth"
                 />
 
                 <SalespersonCharts
                     :sales_by_salesperson="sales_by_salesperson"
                     :top_sales_by_salesperson="top_sales_by_salesperson"
+                    :month="currentMonth"
                 />
 
                 <CustomerCharts
+                    :month="currentMonth"
                     :sales_by_customer="sales_by_customer"
                     :top_sales_by_customer="top_sales_by_customer"
                 />

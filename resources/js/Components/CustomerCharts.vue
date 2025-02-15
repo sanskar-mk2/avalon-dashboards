@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted, watch, computed } from "vue";
+import { router } from "@inertiajs/vue3";
 import Chart from "chart.js/auto";
 import theme from "daisyui/src/theming/themes";
 import Color from "colorjs.io";
@@ -10,6 +11,7 @@ Chart.register(ChartDataLabels);
 const props = defineProps({
     sales_by_customer: Object,
     top_sales_by_customer: Object,
+    month: String,
 });
 
 const customerChartRef = ref(null);
@@ -49,17 +51,16 @@ const createCustomerChart = () => {
         customerChart.destroy();
     }
 
+    // Check if canvas element exists before creating chart
+    if (!customerChartRef.value) {
+        return;
+    }
+
     const chartData = { ...props.sales_by_customer };
-    chartData.datasets = chartData.datasets.map((dataset, index) => ({
+    chartData.datasets = chartData.datasets.map((dataset) => ({
         ...dataset,
-        backgroundColor:
-            (index === 1
-                ? getThemeColor.value.secondary
-                : getThemeColor.value.primary) + "80",
-        borderColor:
-            index === 1
-                ? getThemeColor.value.secondary
-                : getThemeColor.value.primary,
+        backgroundColor: getThemeColor.value.primary + "80",
+        borderColor: getThemeColor.value.primary,
         borderWidth: 1,
     }));
 
@@ -69,6 +70,21 @@ const createCustomerChart = () => {
         type: "bar",
         data: chartData,
         options: {
+            onHover: (event, elements) => {
+                event.native.target.style.cursor = elements.length
+                    ? "pointer" 
+                    : "default";
+            },
+            onClick: (event, elements, chart) => {
+                if (elements.length > 0) {
+                    const index = elements[0].index;
+                    const customer = chart.data.labels[index];
+                    router.get(route("sales.index"), {
+                        "filter[customer_name]": customer,
+                        "filter[period]": props.month,
+                    });
+                }
+            },
             scales: {
                 y: {
                     ticks: {
@@ -97,7 +113,9 @@ const createCustomerChart = () => {
                         weight: "bold",
                         size: 11,
                     },
-                    display: "auto",
+                    display: function (context) {
+                        return context.dataset.data[context.dataIndex] !== 0;
+                    },
                     anchor: "end",
                     align: "end",
                 },
@@ -137,13 +155,13 @@ onMounted(() => {
     <div class="flex justify-center flex-wrap sm:flex-nowrap mt-10 gap-8">
         <div class="sm:basis-2/3 w-full mx-4 sm:mx-0 card bg-base-100 p-4">
             <h2 class="text-lg sm:text-xl font-semibold mb-4">
-                Sales By Customer
+                Top Customers by Sale
             </h2>
             <canvas ref="customerChartRef"></canvas>
         </div>
         <div class="sm:basis-1/3 w-full mx-4 sm:mx-0 card bg-base-100 p-4">
             <h2 class="text-lg sm:text-xl font-semibold mb-4">
-                Sales By Customer
+                Top Customers by Sale
             </h2>
             <div class="h-full sm:h-[300px] overflow-y-auto">
                 <table

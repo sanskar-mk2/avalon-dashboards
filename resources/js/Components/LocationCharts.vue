@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted, watch, computed } from "vue";
+import { router } from "@inertiajs/vue3";
 import Chart from "chart.js/auto";
 import theme from "daisyui/src/theming/themes";
 import Color from "colorjs.io";
@@ -10,6 +11,7 @@ Chart.register(ChartDataLabels);
 const props = defineProps({
     location_chart_data: Object,
     top_sales_by_location: Object,
+    month: String,
 });
 
 const locationChartRef = ref(null);
@@ -55,6 +57,11 @@ const createLocationChart = () => {
         gpLocationChart.destroy();
     }
 
+    // Check if canvas elements exist before creating charts
+    if (!locationChartRef.value || !gpLocationChartRef.value) {
+        return;
+    }
+
     const colors = Object.keys(getThemeColor.value)
         .filter(
             (key) =>
@@ -92,6 +99,25 @@ const createLocationChart = () => {
 
     const chartOptions = {
         responsive: false,
+        onHover: (event, elements) => {
+            event.native.target.style.cursor = elements.length
+                ? "pointer"
+                : "default";
+        },
+        onClick: (event, elements, chart) => {
+            if (elements.length > 0) {
+                const index = elements[0].index;
+                const location = chart.data.labels[index];
+                const locationId =
+                    props.location_chart_data.location_abbrevation_mapping[
+                        location
+                    ];
+                router.get(route("sales.index"), {
+                    "filter[location]": locationId,
+                    "filter[period]": props.month,
+                });
+            }
+        },
         plugins: {
             tooltip: {
                 callbacks: {
@@ -103,12 +129,14 @@ const createLocationChart = () => {
             },
             datalabels: {
                 color: "white",
-                formatter: function (value) {
-                    return "$" + (value / 1000000).toFixed(1) + "M";
+                formatter: function (value, context) {
+                    const label = context.chart.data.labels[context.dataIndex];
+                    return label + "\n$" + (value / 1000000).toFixed(1) + "M";
                 },
                 backgroundColor: function (context) {
                     return context.dataset.borderColor[context.dataIndex];
                 },
+                textAlign: "center",
                 borderRadius: 4,
                 padding: 4,
                 font: {
@@ -116,7 +144,6 @@ const createLocationChart = () => {
                     size: 11,
                 },
                 display: function (context) {
-                    console.log(context);
                     const dataset = context.dataset.data;
                     const value = dataset[context.dataIndex];
                     return (

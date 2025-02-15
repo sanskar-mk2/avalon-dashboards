@@ -20,6 +20,31 @@ const props = defineProps({
         default: null,
     },
 });
+
+const numberFormatter = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+});
+
+const formatValue = (value) => {
+    if (!value) return "-";
+    if (value == 0) return "-";
+    return value;
+};
+
+const formatNumberCurrency = (value) => {
+    value = formatValue(value);
+    if (value == "-") return "-";
+    return numberFormatter.format(value);
+};
+
+const removeDecimals = (value) => {
+    value = formatValue(value);
+    if (value == "-") return "-";
+    return Math.floor(value);
+};
 </script>
 
 <template>
@@ -40,11 +65,19 @@ const props = defineProps({
                                 class="link"
                                 :href="route(routeName, item.id)"
                             >
-                                {{ item[column.key] }}
+                                {{ item[column.key] || "-" }}
                             </Link>
                         </template>
                         <template v-else>
-                            {{ item[column.key] }}
+                            <template v-if="column.to_format">
+                                {{ formatNumberCurrency(item[column.key]) }}
+                            </template>
+                            <template v-else-if="column.remove_decimals">
+                                {{ removeDecimals(item[column.key]) }}
+                            </template>
+                            <template v-else>
+                                {{ formatValue(item[column.key]) }}
+                            </template>
                         </template>
                     </td>
                 </tr>

@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted, watch, computed } from "vue";
+import { router } from "@inertiajs/vue3";
 import Chart from "chart.js/auto";
 import theme from "daisyui/src/theming/themes";
 import Color from "colorjs.io";
@@ -10,6 +11,7 @@ Chart.register(ChartDataLabels);
 const props = defineProps({
     sales_by_salesperson: Object,
     top_sales_by_salesperson: Object,
+    month: String,
 });
 
 const salespersonChartRef = ref(null);
@@ -49,17 +51,16 @@ const createSalespersonChart = () => {
         salespersonChart.destroy();
     }
 
+    // Check if canvas element exists before creating chart
+    if (!salespersonChartRef.value) {
+        return;
+    }
+
     const chartData = { ...props.sales_by_salesperson };
-    chartData.datasets = chartData.datasets.map((dataset, index) => ({
+    chartData.datasets = chartData.datasets.map((dataset) => ({
         ...dataset,
-        backgroundColor:
-            (index === 1
-                ? getThemeColor.value.secondary
-                : getThemeColor.value.primary) + "80",
-        borderColor:
-            index === 1
-                ? getThemeColor.value.secondary
-                : getThemeColor.value.primary,
+        backgroundColor: getThemeColor.value.primary + "80",
+        borderColor: getThemeColor.value.primary,
         borderWidth: 1,
     }));
 
@@ -69,6 +70,22 @@ const createSalespersonChart = () => {
         type: "bar",
         data: chartData,
         options: {
+            onHover: (event, elements) => {
+                event.native.target.style.cursor = elements.length
+                    ? "pointer" 
+                    : "default";
+            },
+            onClick: (event, elements, chart) => {
+                if (elements.length > 0) {
+                    const index = elements[0].index;
+                    const salesperson = chart.data.labels[index];
+                    const salespersonId = props.sales_by_salesperson.salesperson_mapping[salesperson];
+                    router.get(route("sales.index"), {
+                        "filter[salesperson]": salespersonId,
+                        "filter[period]": props.month,
+                    });
+                }
+            },
             scales: {
                 y: {
                     ticks: {

@@ -20,6 +20,10 @@ const props = defineProps({
         type: String,
         default: null,
     },
+    showMonthSelector: {
+        type: Boolean,
+        default: true,
+    },
 });
 </script>
 
@@ -51,7 +55,7 @@ const props = defineProps({
                     </div>
                 </h2>
                 <MonthYearSelector
-                    v-if="availableMonths && currentMonth"
+                    v-if="showMonthSelector && availableMonths && currentMonth"
                     :available-months="availableMonths"
                     :current-month="currentMonth"
                 />

@@ -24,13 +24,13 @@ const showDeleteModal = ref(false);
 
 const columns = [
     { key: "customer_no", label: "Customer No." },
-    { key: "balance_due_amount", label: "Balance Due" },
-    { key: "balance_age_1", label: "Current" },
-    { key: "balance_age_2", label: "31-60 Days" },
-    { key: "balance_age_3", label: "61-90 Days" },
-    { key: "balance_age_4", label: "91-120 Days" },
-    { key: "balance_age_5", label: "121-150 Days" },
-    { key: "balance_age_6", label: "151+ Days" },
+    { key: "balance_due_amount", label: "Balance Due", to_format: true },
+    { key: "balance_age_1", label: "Current", to_format: true },
+    { key: "balance_age_2", label: "31-60 Days", to_format: true },
+    { key: "balance_age_3", label: "61-90 Days", to_format: true },
+    { key: "balance_age_4", label: "91-120 Days", to_format: true },
+    { key: "balance_age_5", label: "121-150 Days", to_format: true },
+    { key: "balance_age_6", label: "151+ Days", to_format: true },
     { key: "credit_manager", label: "Credit Manager" },
     { key: "location", label: "Location" },
 ];

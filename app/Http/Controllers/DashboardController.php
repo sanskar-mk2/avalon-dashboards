@@ -131,6 +131,7 @@ class DashboardController extends Controller
                     ],
                 ],
             ],
+            'location_abbrevation_mapping' => $location_data->pluck('locationModel.location', 'locationModel.location_abbreviation'),
         ];
     }
 
@@ -155,27 +156,20 @@ class DashboardController extends Controller
 
     private function getSalesBySalesperson($current_month)
     {
-        $previous_month = date('Y-m-d', strtotime($current_month . '-1 month'));
-
-        $sales_by_salesperson = Sale::whereIn('period', [$current_month, $previous_month])
-            ->groupBy('salesperson', 'period')
+        $sales_by_salesperson = Sale::where('period', $current_month)
+            ->groupBy('salesperson')
             ->select(
                 'salesperson',
-                'period',
                 DB::raw('SUM(ext_sales) as total_amount')
             )
             ->with('salespersonModel')
-            ->orderBy('period', 'desc')
             ->orderBy('total_amount', 'desc')
             ->get()
             ->filter(function ($sale) {
                 return ! is_null($sale->salespersonModel);
             });
 
-        $periods = collect([$current_month, $previous_month]);
-
         $salesperson_data = $sales_by_salesperson
-            ->where('period', $current_month)
             ->groupBy('salespersonModel.salesman_name')
             ->map(function ($group) {
                 return [
@@ -185,26 +179,19 @@ class DashboardController extends Controller
             })
             ->sortByDesc('total_amount')
             ->values();
+        $salesperson_mapping = $sales_by_salesperson->pluck('salesperson', 'salespersonModel.salesman_name');
 
         $salesperson_names = $salesperson_data->pluck('name');
 
         return [
             'labels' => $salesperson_names->values()->all(),
-            'datasets' => $periods->map(function ($period) use ($sales_by_salesperson, $salesperson_names) {
-                $period_data = $sales_by_salesperson
-                    ->where('period', $period)
-                    ->groupBy('salespersonModel.salesman_name')
-                    ->map(function ($group) {
-                        return $group->sum('total_amount');
-                    });
-
-                return [
-                    'label' => $period,
-                    'data' => $salesperson_names->map(function ($name) use ($period_data) {
-                        return $period_data->get($name, 0);
-                    })->values()->all(),
-                ];
-            })->values()->all(),
+            'datasets' => [
+                [
+                    'label' => $current_month,
+                    'data' => $salesperson_data->pluck('total_amount')->values()->all(),
+                ]
+            ],
+            'salesperson_mapping' => $salesperson_mapping,
         ];
     }
 
@@ -233,32 +220,22 @@ class DashboardController extends Controller
 
     private function getSalesByCustomer($current_month)
     {
-        // Get previous month
-        $prev_month = date('Y-m-d', strtotime($current_month . '-1 month'));
-
-        $sales_by_customer = Sale::whereIn('period', [$current_month, $prev_month])
-            ->groupBy('customer_name', 'period')
+        $sales_by_customer = Sale::where('period', $current_month)
+            ->groupBy('customer_name')
             ->select(
                 'customer_name',
-                'period',
                 DB::raw('SUM(ext_sales) as total_amount')
             )
-            ->orderBy('period', 'desc')
             ->orderBy('total_amount', 'desc')
             ->get();
 
-        $periods = collect([$current_month, $prev_month]);
-
         $customer_data = $sales_by_customer
-            ->where('period', $current_month)
-            ->groupBy('customer_name')
-            ->map(function ($group) {
+            ->map(function ($sale) {
                 return [
-                    'name' => $group->first()->customer_name,
-                    'total_amount' => $group->sum('total_amount'),
+                    'name' => $sale->customer_name,
+                    'total_amount' => $sale->total_amount,
                 ];
             })
-            ->sortByDesc('total_amount')
             ->take(10)
             ->values();
 
@@ -266,21 +243,12 @@ class DashboardController extends Controller
 
         return [
             'labels' => $customer_names->values()->all(),
-            'datasets' => $periods->map(function ($period) use ($sales_by_customer, $customer_names) {
-                $period_data = $sales_by_customer
-                    ->where('period', $period)
-                    ->groupBy('customer_name')
-                    ->map(function ($group) {
-                        return $group->sum('total_amount');
-                    });
-
-                return [
-                    'label' => $period,
-                    'data' => $customer_names->map(function ($name) use ($period_data) {
-                        return $period_data->get($name, 0);
-                    })->values()->all(),
-                ];
-            })->values()->all(),
+            'datasets' => [
+                [
+                    'label' => $current_month,
+                    'data' => $customer_data->pluck('total_amount')->values()->all(),
+                ]
+            ],
         ];
     }
 
@@ -305,7 +273,7 @@ class DashboardController extends Controller
             ->orderBy('uploaded_for_month', 'desc')
             ->pluck('uploaded_for_month');
 
-        $data = $months->map(function($period) use ($months) {
+        $data = $months->map(function ($period) use ($months) {
             // Get inventory value for current period
             $inventory_value = Inventory::where('location', '10')
                 ->where('uploaded_for_month', $period)
@@ -335,8 +303,8 @@ class DashboardController extends Controller
                 ->first();
 
             // Calculate inventory turn using average inventory value
-            $inventory_turn = $avg_inventory_value > 0 
-                ? ($sales_data->total_cogs / $avg_inventory_value) * 12 
+            $inventory_turn = $avg_inventory_value > 0
+                ? ($sales_data->total_cogs / $avg_inventory_value) * 12
                 : 0;
 
             return [

@@ -23,20 +23,23 @@ const props = defineProps({
 const showDeleteModal = ref(false);
 
 const columns = [
-    { key: "company_no", label: "Company No." },
-    { key: "fiscal_period", label: "Fiscal Period" },
+    { key: "fiscal_period", label: "Period" },
     { key: "location", label: "Location" },
-    { key: "item_no", label: "Item No." },
-    { key: "qty_on_hand", label: "Qty on Hand" },
-    { key: "average_cost", label: "Average Cost" },
-    { key: "quantity_committed", label: "Qty Committed" },
-    { key: "quantity_open_order", label: "Qty Open Order" },
-    { key: "quantity_backorder", label: "Qty Backorder" },
-    { key: "board_material", label: "Board Material" },
-    { key: "board_thickness", label: "Board Thickness" },
-    { key: "laminate_material", label: "Laminate Material" },
-    { key: "laminate_color", label: "Laminate Color" },
-    { key: "as_of_date", label: "As of Date" },
+    { key: "item_no", label: "Item" },
+    { key: "qty_on_hand", label: "Qty" },
+    { key: "average_cost", label: "Avg Cost", to_format: true },
+    { key: "quantity_committed", label: "Qty Comm", remove_decimals: true },
+    {
+        key: "quantity_open_order",
+        label: "Qty Open Ord",
+        remove_decimals: true,
+    },
+    {
+        key: "quantity_backorder",
+        label: "Qty Backorder",
+        remove_decimals: true,
+    },
+    { key: "amount_on_hand", label: "Amount on hand", to_format: true },
 ];
 
 const breadcrumbs = [
