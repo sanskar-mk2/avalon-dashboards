@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted, watch, computed } from "vue";
-import { router } from "@inertiajs/vue3";
+import { router, Link } from "@inertiajs/vue3";
 import Chart from "chart.js/auto";
 import theme from "daisyui/src/theming/themes";
 import Color from "colorjs.io";
@@ -70,6 +70,9 @@ const createCustomerChart = () => {
         type: "bar",
         data: chartData,
         options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            aspectRatio: 3,
             onHover: (event, elements) => {
                 event.native.target.style.cursor = elements.length
                     ? "pointer" 
@@ -97,6 +100,14 @@ const createCustomerChart = () => {
                 },
             },
             plugins: {
+                legend: {
+                    labels: {
+                        font: {
+                            size: 10,
+                        },
+                        boxWidth: 10,
+                    },
+                },
                 datalabels: {
                     color: "white",
                     formatter: function (value) {
@@ -111,7 +122,7 @@ const createCustomerChart = () => {
                     padding: 4,
                     font: {
                         weight: "bold",
-                        size: 11,
+                        size: 10,
                     },
                     display: function (context) {
                         return context.dataset.data[context.dataIndex] !== 0;
@@ -153,17 +164,11 @@ onMounted(() => {
 
 <template>
     <div class="flex justify-center flex-wrap sm:flex-nowrap mt-10 gap-8">
-        <div class="sm:basis-2/3 w-full mx-4 sm:mx-0 card bg-base-100 p-4">
-            <h2 class="text-lg sm:text-xl font-semibold mb-4">
-                Top Customers by Sale
-            </h2>
-            <canvas ref="customerChartRef"></canvas>
-        </div>
         <div class="sm:basis-1/3 w-full mx-4 sm:mx-0 card bg-base-100 p-4">
             <h2 class="text-lg sm:text-xl font-semibold mb-4">
-                Top Customers by Sale
+                Sales By Customer
             </h2>
-            <div class="h-full sm:h-[300px] overflow-y-auto">
+            <div class="h-full sm:h-[250px] overflow-y-auto">
                 <table
                     class="min-w-full bg-base-100 border border-base-300 rounded-lg overflow-hidden"
                 >
@@ -190,7 +195,17 @@ onMounted(() => {
                             <td
                                 class="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-base-content"
                             >
-                                {{ customer.customer_name }}
+                                <Link
+                                    :href="
+                                        route(
+                                            'customers.show',
+                                            customer.customer_name
+                                        )
+                                    "
+                                    class="link"
+                                >
+                                    {{ customer.customer_name }}
+                                </Link>
                             </td>
                             <td
                                 class="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-base-content"
@@ -202,6 +217,14 @@ onMounted(() => {
                         </tr>
                     </tbody>
                 </table>
+            </div>
+        </div>
+        <div class="sm:basis-2/3 w-full mx-4 sm:mx-0 card bg-base-100 p-4">
+            <h2 class="text-lg sm:text-xl font-semibold mb-4">
+                Sales By Customer
+            </h2>
+            <div class="h-[250px]">
+                <canvas ref="customerChartRef"></canvas>
             </div>
         </div>
     </div>

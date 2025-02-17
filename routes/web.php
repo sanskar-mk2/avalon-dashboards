@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AccountReceivableController;
+use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\LocationController;
@@ -24,6 +25,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::get('/customers/{customer_name}', [CustomerController::class, 'show'])->name('customers.show');
     Route::resource('sales', SaleController::class);
     Route::delete('/sales', [SaleController::class, 'deleteAll'])->name('sales.deleteAll');
     Route::resource('open_orders', OpenOrderController::class);

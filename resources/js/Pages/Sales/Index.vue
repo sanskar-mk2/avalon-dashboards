@@ -1,9 +1,11 @@
 <script setup>
 import { Link } from "@inertiajs/vue3";
-import { ref, computed } from "vue";
+import { ref, computed, h } from "vue";
 import PageLayout from "@/Components/PageLayout.vue";
 import DataTable from "@/Components/DataTable.vue";
 import DeleteModal from "@/Components/DeleteModal.vue";
+import dayjs from "dayjs";
+import { getSalesColumns } from "@/Config/salesColumns";
 
 const props = defineProps({
     sales: {
@@ -43,22 +45,7 @@ const filter_object = computed(() => {
 
 const showDeleteModal = ref(false);
 
-const columns = [
-    { key: "location", label: "Location" },
-    { key: "order_no", label: "Order No" },
-    { key: "order_date", label: "Order Date" },
-    { key: "customer_name", label: "Customer Name" },
-    { key: "invoice_no", label: "Invoice No" },
-    { key: "invoice_date", label: "Invoice Date" },
-    { key: "item_no", label: "Item No" },
-    { key: "item_desc", label: "Item Desc" },
-    { key: "qty", label: "Qty", remove_decimals: true },
-    { key: "ext_sales", label: "Ext Sales", to_format: true },
-    { key: "ext_cost", label: "Ext Cost", to_format: true },
-    { key: "period", label: "Period" },
-    { key: "requested_ship_date", label: "Requested Ship Date" },
-    { key: "mfg_code", label: "Mfg Code" },
-];
+const columns = getSalesColumns();
 
 const breadcrumbs = computed(() => {
     const crumbs = [{ label: "Home", route: "dashboard" }];

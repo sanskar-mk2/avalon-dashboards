@@ -81,6 +81,9 @@ const createInventoryChart = () => {
         type: "bar",
         data: chartData,
         options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            aspectRatio: 4.5,
             scales: {
                 y: {
                     position: "left",
@@ -103,6 +106,14 @@ const createInventoryChart = () => {
                 },
             },
             plugins: {
+                legend: {
+                    labels: {
+                        font: {
+                            size: 10, // Smaller legend labels
+                        },
+                        boxWidth: 10,
+                    },
+                },
                 datalabels: {
                     color: "white",
                     formatter: function (value, context) {
@@ -118,7 +129,7 @@ const createInventoryChart = () => {
                     padding: 4,
                     font: {
                         weight: "bold",
-                        size: 11,
+                        size: 10,
                     },
                     display: function (context) {
                         return context.dataset.data[context.dataIndex] !== 0;
@@ -162,7 +173,9 @@ onMounted(() => {
             <h2 class="text-lg sm:text-xl font-semibold mb-4">
                 Inventory Metrics
             </h2>
-            <canvas ref="inventoryChartRef"></canvas>
+            <div class="h-[250px]">
+                <canvas ref="inventoryChartRef"></canvas>
+            </div>
         </div>
     </div>
 </template>

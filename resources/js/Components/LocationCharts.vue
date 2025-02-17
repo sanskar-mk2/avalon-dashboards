@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted, watch, computed } from "vue";
-import { router } from "@inertiajs/vue3";
+import { router, Link } from "@inertiajs/vue3";
 import Chart from "chart.js/auto";
 import theme from "daisyui/src/theming/themes";
 import Color from "colorjs.io";
@@ -67,7 +67,7 @@ const createLocationChart = () => {
             (key) =>
                 key !== "base-100" &&
                 key !== "base-200" &&
-                key !== "base-300" &&
+                key !== "base-250" &&
                 key !== "secondary-content"
         )
         .map((key) => getThemeColor.value[key]);
@@ -99,6 +99,9 @@ const createLocationChart = () => {
 
     const chartOptions = {
         responsive: false,
+        width: 250, // Set specific width
+        height: 250, // Set specific height
+        maintainAspectRatio: true,
         onHover: (event, elements) => {
             event.native.target.style.cursor = elements.length
                 ? "pointer"
@@ -119,6 +122,14 @@ const createLocationChart = () => {
             }
         },
         plugins: {
+            legend: {
+                labels: {
+                    font: {
+                        size: 10, // Smaller legend labels
+                    },
+                    boxWidth: 10,
+                },
+            },
             tooltip: {
                 callbacks: {
                     label: function (context) {
@@ -141,7 +152,7 @@ const createLocationChart = () => {
                 padding: 4,
                 font: {
                     weight: "bold",
-                    size: 11,
+                    size: 10,
                 },
                 display: function (context) {
                     const dataset = context.dataset.data;
@@ -152,7 +163,7 @@ const createLocationChart = () => {
                             (a, b) => parseFloat(a) + parseFloat(b)
                         ) *
                             0.05
-                    ); // Only show if value is more than 5% of total
+                    );
                 },
             },
         },
@@ -204,21 +215,33 @@ onMounted(() => {
             <h2 class="text-lg sm:text-xl font-semibold mb-4">
                 Sales By Location
             </h2>
-            <canvas ref="locationChartRef"></canvas>
+            <div class="flex justify-center">
+                <canvas
+                    ref="locationChartRef"
+                    width="250"
+                    height="250"
+                ></canvas>
+            </div>
         </div>
         <div class="sm:basis-1/3 w-full mx-4 sm:mx-0 card bg-base-100 p-4">
             <h2 class="text-lg sm:text-xl font-semibold mb-4">
                 GP By Location
             </h2>
-            <canvas ref="gpLocationChartRef"></canvas>
+            <div class="flex justify-center">
+                <canvas
+                    ref="gpLocationChartRef"
+                    width="250"
+                    height="250"
+                ></canvas>
+            </div>
         </div>
         <div class="sm:basis-1/3 w-full mx-4 sm:mx-0 card bg-base-100 p-4">
             <h2 class="text-lg sm:text-xl font-semibold mb-4">
                 Sales By Location
             </h2>
-            <div class="h-full sm:h-[300px] overflow-y-auto">
+            <div class="h-full sm:h-[250px] overflow-y-auto">
                 <table
-                    class="min-w-full bg-base-100 border border-base-300 rounded-lg overflow-hidden"
+                    class="min-w-full bg-base-100 border border-base-250 rounded-lg overflow-hidden"
                 >
                     <thead class="bg-primary sticky top-0">
                         <tr>
@@ -234,7 +257,7 @@ onMounted(() => {
                             </th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-base-300">
+                    <tbody class="divide-y divide-base-250">
                         <tr
                             v-for="location in top_sales_by_location"
                             :key="location.id"
@@ -243,10 +266,20 @@ onMounted(() => {
                             <td
                                 class="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-base-content"
                             >
-                                {{
-                                    location.location_model
-                                        .location_abbreviation
-                                }}
+                                <Link
+                                    :href="
+                                        route(
+                                            'locations.show',
+                                            location.location_model.id
+                                        )
+                                    "
+                                    class="link"
+                                >
+                                    {{
+                                        location.location_model
+                                            .location_abbreviation
+                                    }}
+                                </Link>
                             </td>
                             <td
                                 class="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-base-content"

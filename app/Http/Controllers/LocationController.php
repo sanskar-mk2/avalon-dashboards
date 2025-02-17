@@ -81,7 +81,27 @@ class LocationController extends Controller
      */
     public function show(Location $location)
     {
-        $sales = $location->sales()->with('salespersonModel')->paginate(10);
+        $sales = $location->sales()
+            ->select(
+                'company',
+                'location', 
+                'order_no',
+                'order_date',
+                'customer_name',
+                'salesperson',
+                'invoice_no',
+                'invoice_date',
+                'item_no',
+                'item_desc',
+                'qty',
+                'ext_sales',
+                'ext_cost',
+                'period',
+                'requested_ship_date',
+                'mfg_code'
+            )
+            ->with('salespersonModel')
+            ->paginate(8);
 
         return Inertia::render('Locations/Show', [
             'location' => $location,

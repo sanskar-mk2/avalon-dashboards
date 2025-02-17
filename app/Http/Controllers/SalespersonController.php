@@ -48,7 +48,7 @@ class SalespersonController extends Controller
         // Set UTF-8 encoding for reading CSV
         $collection = (new FastExcel)
             ->configureCsv(',')
-            ->import(storage_path('app/private/'.$path));
+            ->import(storage_path('app/private/' . $path));
 
         // Split collection into chunks of 1000 records and save to DB
         $chunks = $collection->chunk(1000);
@@ -78,7 +78,7 @@ class SalespersonController extends Controller
         }
 
         // Delete temporary file
-        unlink(storage_path('app/private/'.$path));
+        unlink(storage_path('app/private/' . $path));
 
         return redirect()->route('salespeople.index')->with('success', 'Salespeople imported successfully');
     }
@@ -88,7 +88,27 @@ class SalespersonController extends Controller
      */
     public function show(Salesperson $salesperson)
     {
-        $sales = $salesperson->sales()->paginate(10);
+        $sales = $salesperson->sales()
+            ->select(
+                'company',
+                'location',
+                'order_no',
+                'order_date',
+                'customer_name',
+                'salesperson',
+                'invoice_no',
+                'invoice_date',
+                'item_no',
+                'item_desc',
+                'qty',
+                'ext_sales',
+                'ext_cost',
+                'period',
+                'requested_ship_date',
+                'mfg_code'
+            )
+            ->with('locationModel')
+            ->paginate(8);
 
         return Inertia::render('Salespeople/Show', [
             'salesperson' => $salesperson,

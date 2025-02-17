@@ -11,9 +11,23 @@ const props = defineProps({
         type: String,
         required: true,
     },
+    showYTD: {
+        type: Boolean,
+        default: false,
+    },
 });
 
 const selectedMonth = ref(props.currentMonth);
+
+const formatMonthDisplay = (month) => {
+    if (month === 'YTD') {
+        return 'Year to Date';
+    }
+    return new Date(month).toLocaleDateString("en-US", {
+        month: "long",
+        year: "numeric",
+    });
+};
 
 watch(selectedMonth, (newValue) => {
     router.get(
@@ -34,17 +48,13 @@ watch(selectedMonth, (newValue) => {
             v-model="selectedMonth"
             class="select select-secondary select-sm sm:select-md text-xs sm:text-sm"
         >
+            <option v-if="showYTD" value="YTD">Year to Date</option>
             <option
                 v-for="month in availableMonths"
                 :key="month"
                 :value="month"
             >
-                {{
-                    new Date(month).toLocaleDateString("en-US", {
-                        month: "long",
-                        year: "numeric",
-                    })
-                }}
+                {{ formatMonthDisplay(month) }}
             </option>
         </select>
     </div>

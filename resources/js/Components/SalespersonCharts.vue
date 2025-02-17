@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted, watch, computed } from "vue";
-import { router } from "@inertiajs/vue3";
+import { router, Link } from "@inertiajs/vue3";
 import Chart from "chart.js/auto";
 import theme from "daisyui/src/theming/themes";
 import Color from "colorjs.io";
@@ -70,16 +70,22 @@ const createSalespersonChart = () => {
         type: "bar",
         data: chartData,
         options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            aspectRatio: 3, // This controls the height relative to width
             onHover: (event, elements) => {
                 event.native.target.style.cursor = elements.length
-                    ? "pointer" 
+                    ? "pointer"
                     : "default";
             },
             onClick: (event, elements, chart) => {
                 if (elements.length > 0) {
                     const index = elements[0].index;
                     const salesperson = chart.data.labels[index];
-                    const salespersonId = props.sales_by_salesperson.salesperson_mapping[salesperson];
+                    const salespersonId =
+                        props.sales_by_salesperson.salesperson_mapping[
+                            salesperson
+                        ];
                     router.get(route("sales.index"), {
                         "filter[salesperson]": salespersonId,
                         "filter[period]": props.month,
@@ -96,6 +102,14 @@ const createSalespersonChart = () => {
                 },
             },
             plugins: {
+                legend: {
+                    labels: {
+                        font: {
+                            size: 10, // Smaller legend labels
+                        },
+                        boxWidth: 10,
+                    },
+                },
                 datalabels: {
                     color: "white",
                     formatter: function (value) {
@@ -108,7 +122,7 @@ const createSalespersonChart = () => {
                     padding: 4,
                     font: {
                         weight: "bold",
-                        size: 11,
+                        size: 10, // Reduced font size
                     },
                     display: function (context) {
                         return context.dataset.data[context.dataIndex] !== 0;
@@ -154,7 +168,7 @@ onMounted(() => {
             <h2 class="text-lg sm:text-xl font-semibold mb-4">
                 Sales By Salesperson
             </h2>
-            <div class="h-full sm:h-[300px] overflow-y-auto">
+            <div class="h-full sm:h-[250px] overflow-y-auto">
                 <table
                     class="min-w-full bg-base-100 border border-base-300 rounded-lg overflow-hidden"
                 >
@@ -181,9 +195,20 @@ onMounted(() => {
                             <td
                                 class="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-base-content"
                             >
-                                {{
-                                    salesperson.salesperson_model.salesman_name
-                                }}
+                                <Link
+                                    :href="
+                                        route(
+                                            'salespeople.show',
+                                            salesperson.salesperson_model.id
+                                        )
+                                    "
+                                    class="link"
+                                >
+                                    {{
+                                        salesperson.salesperson_model
+                                            .salesman_name
+                                    }}
+                                </Link>
                             </td>
                             <td
                                 class="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-base-content"
@@ -203,7 +228,10 @@ onMounted(() => {
             <h2 class="text-lg sm:text-xl font-semibold mb-4">
                 Sales By Salesperson
             </h2>
-            <canvas ref="salespersonChartRef"></canvas>
+            <div class="h-[250px]">
+                <!-- Fixed height container -->
+                <canvas ref="salespersonChartRef"></canvas>
+            </div>
         </div>
     </div>
 </template>

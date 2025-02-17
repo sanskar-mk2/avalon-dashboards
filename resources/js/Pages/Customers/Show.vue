@@ -6,9 +6,9 @@ import DataTable from "@/Components/DataTable.vue";
 import { getSalesColumns } from "@/Config/salesColumns";
 
 const props = defineProps({
-    location: {
-        type: Object,
-        default: () => ({}),
+    customer_name: {
+        type: String,
+        required: true,
     },
     sales: {
         type: Object,
@@ -20,13 +20,13 @@ const columns = getSalesColumns();
 
 const breadcrumbs = [
     { label: "Home", route: "dashboard" },
-    { label: "Locations", route: "locations.index" },
-    { label: props.location.location_abbreviation },
+    { label: "Sales", route: "sales.index" },
+    { label: props.customer_name },
 ];
 </script>
 
 <template>
-    <PageLayout :title="location.location_abbreviation" :breadcrumbs="breadcrumbs">
+    <PageLayout :title="customer_name" :breadcrumbs="breadcrumbs">
         <DataTable :data="sales" :columns="columns" />
     </PageLayout>
-</template>
+</template> 

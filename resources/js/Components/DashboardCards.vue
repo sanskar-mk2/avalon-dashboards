@@ -6,11 +6,14 @@ import { computed } from "vue";
 import dayjs from "dayjs";
 const props = defineProps({
     cards_data: Object,
+    month: String,
 });
 
 const sales_cards = computed(() => {
     const last_sales_month = props.cards_data.sales[0]?.period
-        ? dayjs(props.cards_data.sales[0].period).format("MMM YYYY")
+        ? props.cards_data.sales[0].period === "YTD"
+            ? "YTD " + new Date().getFullYear()
+            : dayjs(props.cards_data.sales[0].period).format("MMM YYYY")
         : "No Data";
     const last_month_sales = props.cards_data.sales[0]?.total_amount
         ? (props.cards_data.sales[0].total_amount / 1000000).toFixed(2) + "M"
@@ -102,16 +105,23 @@ const receivables_cards = computed(() => {
     <div class="grid grid-cols-1 mx-4 sm:mx-0 sm:grid-cols-4 gap-4">
         <div class="stats shadow">
             <div class="stat">
-                <div class="stat-title text-xs sm:text-base">
-                    Total
-                    <Link :href="route('sales.index')" class="link">Sales</Link>
-                    for {{ sales_cards.last_sales_month }}
+                <div class="stat-title text-[11px] sm:text-sm">
+                    <Link
+                        :href="
+                            route('sales.index', {
+                                'filter[period]': month,
+                            })
+                        "
+                        class="link"
+                        >Total Sales for
+                        {{ sales_cards.last_sales_month }}</Link
+                    >
                 </div>
-                <div class="stat-value text-primary text-2xl sm:text-4xl">
+                <div class="stat-value text-primary text-xl sm:text-3xl">
                     {{ sales_cards.last_month_sales }}
                 </div>
                 <div
-                    class="stat-desc flex items-center gap-1 text-xs sm:text-sm"
+                    class="stat-desc flex items-center gap-1 text-[10px] sm:text-xs"
                 >
                     <div
                         class="badge"
@@ -135,25 +145,36 @@ const receivables_cards = computed(() => {
                         <Dash v-else class="w-4 h-4 stroke-warning" />
                         {{ Math.abs(sales_cards.percent_change).toFixed(2) }}%
                     </div>
-                    <span> Compared to last month </span>
+                    <span>
+                        {{
+                            month === "YTD"
+                                ? "Compared to last year"
+                                : "Compared to last month"
+                        }}
+                    </span>
                 </div>
             </div>
         </div>
 
         <div class="stats shadow">
             <div class="stat">
-                <div class="stat-title text-xs sm:text-base">
-                    Total
-                    <Link :href="route('open_orders.index')" class="link"
-                        >Open Orders</Link
+                <div class="stat-title text-[11px] sm:text-sm">
+                    <Link
+                        :href="
+                            route('open_orders.index', {
+                                month: month,
+                            })
+                        "
+                        class="link"
+                        >Total Open Orders as of
+                        {{ open_orders_cards.last_open_orders_month }}</Link
                     >
-                    for {{ open_orders_cards.last_open_orders_month }}
                 </div>
-                <div class="stat-value text-primary text-2xl sm:text-4xl">
+                <div class="stat-value text-primary text-xl sm:text-3xl">
                     {{ open_orders_cards.last_month_open_orders }}
                 </div>
                 <div
-                    class="stat-desc flex items-center gap-1 text-xs sm:text-sm"
+                    class="stat-desc flex items-center gap-1 text-[10px] sm:text-xs"
                 >
                     <div
                         class="badge"
@@ -188,18 +209,23 @@ const receivables_cards = computed(() => {
 
         <div class="stats shadow">
             <div class="stat">
-                <div class="stat-title text-xs sm:text-base">
-                    Total
-                    <Link :href="route('inventories.index')" class="link"
-                        >Inventory</Link
+                <div class="stat-title text-[11px] sm:text-sm">
+                    <Link
+                        :href="
+                            route('inventories.index', {
+                                month: month,
+                            })
+                        "
+                        class="link"
+                        >Total Inventory as of
+                        {{ inventory_cards.last_month }}</Link
                     >
-                    for {{ inventory_cards.last_month }}
                 </div>
-                <div class="stat-value text-primary text-2xl sm:text-4xl">
+                <div class="stat-value text-primary text-xl sm:text-3xl">
                     {{ inventory_cards.total }}
                 </div>
                 <div
-                    class="stat-desc flex items-center gap-1 text-xs sm:text-sm"
+                    class="stat-desc flex items-center gap-1 text-[10px] sm:text-xs"
                 >
                     <div
                         class="badge"
@@ -232,20 +258,23 @@ const receivables_cards = computed(() => {
 
         <div class="stats shadow">
             <div class="stat">
-                <div class="stat-title text-xs sm:text-base">
-                    Total
+                <div class="stat-title text-[11px] sm:text-sm">
                     <Link
-                        :href="route('account_receivables.index')"
+                        :href="
+                            route('account_receivables.index', {
+                                month: month,
+                            })
+                        "
                         class="link"
-                        >Receivables</Link
+                        >Total Receivables as of
+                        {{ receivables_cards.last_month }}</Link
                     >
-                    for {{ receivables_cards.last_month }}
                 </div>
-                <div class="stat-value text-primary text-2xl sm:text-4xl">
+                <div class="stat-value text-primary text-xl sm:text-3xl">
                     {{ receivables_cards.total }}
                 </div>
                 <div
-                    class="stat-desc flex items-center gap-1 text-xs sm:text-sm"
+                    class="stat-desc flex items-center gap-1 text-[10px] sm:text-xs"
                 >
                     <div
                         class="badge"

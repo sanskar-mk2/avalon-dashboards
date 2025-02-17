@@ -39,13 +39,14 @@ const props = defineProps({
                     v-if="availableMonths && currentMonth"
                     :available-months="availableMonths"
                     :current-month="currentMonth"
+                    :show-y-t-d="true"
                 />
             </div>
         </template>
 
         <div class="py-12">
             <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
-                <DashboardCards :cards_data="cards_data" />
+                <DashboardCards :cards_data="cards_data" :month="currentMonth" />
 
                 <LocationCharts
                     :location_chart_data="location_chart_data"
