@@ -15,10 +15,16 @@ const props = defineProps({
 
 const formatAmount = (amount) => {
     if (!amount) return "0";
-    if (amount < 1000000) {
-        return Math.round(amount / 1000) + "K";
-    }
-    return (amount / 1000000).toFixed(2) + "M";
+    const formatter = new Intl.NumberFormat("en-US", {
+        notation: "compact",
+        maximumFractionDigits: 2,
+    });
+    return formatter.format(amount);
+};
+
+const calculatePercentChange = (current, previous) => {
+    if (previous == 0) return 0;
+    return ((current - previous) / previous) * 100;
 };
 
 const sales_cards = computed(() => {
@@ -30,12 +36,10 @@ const sales_cards = computed(() => {
     const last_month_sales = props.cards_data.sales[0]?.total_amount
         ? formatAmount(props.cards_data.sales[0].total_amount)
         : "0";
-    const percent_change = props.cards_data.sales[1]?.total_amount
-        ? ((props.cards_data.sales[0].total_amount -
-              props.cards_data.sales[1].total_amount) /
-              props.cards_data.sales[1].total_amount) *
-          100
-        : 0;
+    const percent_change = calculatePercentChange(
+        props.cards_data.sales[0]?.total_amount || 0,
+        props.cards_data.sales[1]?.total_amount || 0
+    );
 
     return {
         last_sales_month,
@@ -51,12 +55,10 @@ const open_orders_cards = computed(() => {
     const last_month_open_orders = props.cards_data.open_orders[0]?.total_amount
         ? formatAmount(props.cards_data.open_orders[0].total_amount)
         : "0";
-    const percent_change = props.cards_data.open_orders[1]?.total_amount
-        ? ((props.cards_data.open_orders[0].total_amount -
-              props.cards_data.open_orders[1].total_amount) /
-              props.cards_data.open_orders[1].total_amount) *
-          100
-        : 0;
+    const percent_change = calculatePercentChange(
+        props.cards_data.open_orders[0]?.total_amount || 0,
+        props.cards_data.open_orders[1]?.total_amount || 0
+    );
 
     return {
         last_open_orders_month,
@@ -75,12 +77,10 @@ const inventory_cards = computed(() => {
     const total = props.cards_data.total_inventory[0]?.total_amount
         ? formatAmount(props.cards_data.total_inventory[0].total_amount)
         : "0";
-    const percent_change = props.cards_data.total_inventory[1]?.total_amount
-        ? ((props.cards_data.total_inventory[0].total_amount -
-              props.cards_data.total_inventory[1].total_amount) /
-              props.cards_data.total_inventory[1].total_amount) *
-          100
-        : 0;
+    const percent_change = calculatePercentChange(
+        props.cards_data.total_inventory[0]?.total_amount || 0,
+        props.cards_data.total_inventory[1]?.total_amount || 0
+    );
 
     return {
         last_month,
@@ -99,12 +99,10 @@ const receivables_cards = computed(() => {
     const total = props.cards_data.total_receivables[0]?.total_amount
         ? formatAmount(props.cards_data.total_receivables[0].total_amount)
         : "0";
-    const percent_change = props.cards_data.total_receivables[1]?.total_amount
-        ? ((props.cards_data.total_receivables[0].total_amount -
-              props.cards_data.total_receivables[1].total_amount) /
-              props.cards_data.total_receivables[1].total_amount) *
-          100
-        : 0;
+    const percent_change = calculatePercentChange(
+        props.cards_data.total_receivables[0]?.total_amount || 0,
+        props.cards_data.total_receivables[1]?.total_amount || 0
+    );
 
     return {
         last_month,

@@ -126,11 +126,22 @@ class SalespersonController extends Controller
 
         // Open Orders data
         $open_orders = OpenOrder::whereSalesperson($salesperson)
-            ->whereIn('uploaded_for_month', [$default_month, $prev_default_month])
+            ->whereIn('uploaded_for_month', [$current_month === 'YTD' ? $default_month : $current_month, $prev_default_month])
             ->groupBy('uploaded_for_month')
             ->select('uploaded_for_month as period', DB::raw('SUM(ext_sales) as total_amount'))
             ->orderBy('uploaded_for_month', 'desc')
             ->get();
+
+        // Ensure both months exist in open orders
+        if (! $open_orders->contains('period', $current_month === 'YTD' ? $default_month : $current_month)) {
+            $open_orders->push(['period' => $current_month === 'YTD' ? $default_month : $current_month, 'total_amount' => 0]);
+        }
+        if (! $open_orders->contains('period', $prev_default_month)) {
+            $open_orders->push(['period' => $prev_default_month, 'total_amount' => 0]);
+        }
+
+        // Sort to ensure current month is first, prev month second
+        $open_orders = $open_orders->sortByDesc('period')->values();
 
         return [
             'sales' => $sales,

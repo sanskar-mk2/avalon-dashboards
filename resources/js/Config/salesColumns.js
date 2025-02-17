@@ -74,6 +74,13 @@ export const getSalesColumns = () => [
         key: "ext_profit",
         label: "GP %",
         custom_value: (model) => {
+            if (
+                !model.ext_sales ||
+                !model.ext_cost ||
+                model.ext_sales == 0 ||
+                model.ext_cost == 0
+            )
+                return "-";
             const gp =
                 ((model.ext_sales - model.ext_cost) / model.ext_sales) * 100;
             return isNaN(gp) ? "-" : gp.toFixed(2) + "%";

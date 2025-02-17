@@ -120,7 +120,12 @@ const createInventoryChart = () => {
                         if (context.dataset.label === "Inventory Turn") {
                             return value.toFixed(1) + "x";
                         }
-                        return "$" + (value / 1000000).toFixed(1) + "M";
+                        return new Intl.NumberFormat("en-US", {
+                            style: "currency",
+                            currency: "USD",
+                            notation: "compact",
+                            maximumFractionDigits: 1,
+                        }).format(value);
                     },
                     backgroundColor: function (context) {
                         return context.dataset.borderColor;

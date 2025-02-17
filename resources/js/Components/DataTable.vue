@@ -195,7 +195,7 @@ const hideTooltip = () => {
     </div>
     <div class="mt-2 flex justify-between w-full items-center">
         <div class="text-base-content text-xs sm:text-sm">
-            Showing {{ data.from }} to {{ data.to }} of {{ data.total }} results
+            {{ data.total === 0 ? 'No results found' : `Showing ${data.from} to ${data.to} of ${data.total} results` }}
         </div>
         <Pagination :links="data.links" />
     </div>

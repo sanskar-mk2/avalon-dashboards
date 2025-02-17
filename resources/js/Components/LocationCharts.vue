@@ -156,7 +156,13 @@ const createLocationChart = () => {
                 color: "white",
                 formatter: function (value, context) {
                     const label = context.chart.data.labels[context.dataIndex];
-                    return label + "\n$" + (value / 1000000).toFixed(1) + "M";
+                    const formatter = new Intl.NumberFormat('en-US', {
+                        style: 'currency',
+                        currency: 'USD',
+                        maximumFractionDigits: 0,
+                        notation: 'compact'
+                    });
+                    return label + "\n" + formatter.format(value);
                 },
                 backgroundColor: function (context) {
                     return context.dataset.borderColor[context.dataIndex];

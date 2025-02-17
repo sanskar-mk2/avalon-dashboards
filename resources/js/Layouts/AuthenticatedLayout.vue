@@ -45,47 +45,39 @@ onMounted(() => {
                                 </NavLink>
                                 <NavLink
                                     :href="route('sales.index')"
-                                    :active="route().current('sales.index')"
+                                    :active="route().current('sales.*')"
                                 >
                                     Sales
                                 </NavLink>
                                 <NavLink
                                     :href="route('open_orders.index')"
-                                    :active="
-                                        route().current('open_orders.index')
-                                    "
+                                    :active="route().current('open_orders.*')"
                                 >
                                     Open Orders
                                 </NavLink>
                                 <NavLink
                                     :href="route('locations.index')"
-                                    :active="route().current('locations.index')"
+                                    :active="route().current('locations.*')"
                                 >
                                     Locations
                                 </NavLink>
                                 <NavLink
                                     :href="route('salespeople.index')"
-                                    :active="
-                                        route().current('salespeople.index')
-                                    "
+                                    :active="route().current('salespeople.*')"
                                 >
                                     Salespeople
                                 </NavLink>
                                 <NavLink
                                     :href="route('account_receivables.index')"
                                     :active="
-                                        route().current(
-                                            'account_receivables.index'
-                                        )
+                                        route().current('account_receivables.*')
                                     "
                                 >
                                     Account Receivables
                                 </NavLink>
                                 <NavLink
                                     :href="route('inventories.index')"
-                                    :active="
-                                        route().current('inventories.index')
-                                    "
+                                    :active="route().current('inventories.*')"
                                 >
                                     Inventories
                                 </NavLink>
@@ -198,39 +190,37 @@ onMounted(() => {
                         </ResponsiveNavLink>
                         <ResponsiveNavLink
                             :href="route('sales.index')"
-                            :active="route().current('sales.index')"
+                            :active="route().current('sales.*')"
                         >
                             Sales
                         </ResponsiveNavLink>
                         <ResponsiveNavLink
                             :href="route('open_orders.index')"
-                            :active="route().current('open_orders.index')"
+                            :active="route().current('open_orders.*')"
                         >
                             Open Orders
                         </ResponsiveNavLink>
                         <ResponsiveNavLink
                             :href="route('locations.index')"
-                            :active="route().current('locations.index')"
+                            :active="route().current('locations.*')"
                         >
                             Locations
                         </ResponsiveNavLink>
                         <ResponsiveNavLink
                             :href="route('salespeople.index')"
-                            :active="route().current('salespeople.index')"
+                            :active="route().current('salespeople.*')"
                         >
                             Salespeople
                         </ResponsiveNavLink>
                         <ResponsiveNavLink
                             :href="route('account_receivables.index')"
-                            :active="
-                                route().current('account_receivables.index')
-                            "
+                            :active="route().current('account_receivables.*')"
                         >
                             Account Receivables
                         </ResponsiveNavLink>
                         <ResponsiveNavLink
                             :href="route('inventories.index')"
-                            :active="route().current('inventories.index')"
+                            :active="route().current('inventories.*')"
                         >
                             Inventories
                         </ResponsiveNavLink>

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, watch, computed } from "vue";
+import { ref, onMounted, watch, computed, nextTick } from "vue";
 import { router, Link } from "@inertiajs/vue3";
 import Chart from "chart.js/auto";
 import theme from "daisyui/src/theming/themes";
@@ -26,6 +26,10 @@ const numberFormatter = new Intl.NumberFormat("en-US", {
     maximumFractionDigits: 0,
 });
 
+const hasData = computed(() => {
+    return props.sales_by_customer?.labels?.length > 0;
+});
+
 const getThemeColor = computed(() => {
     const theme_obj = theme[current_theme.value];
     if (!theme_obj) {
@@ -50,6 +54,11 @@ const getThemeColor = computed(() => {
 const createCustomerChart = () => {
     if (customerChart) {
         customerChart.destroy();
+        customerChart = null;
+    }
+
+    if (!hasData.value) {
+        return;
     }
 
     // Check if canvas element exists before creating chart
@@ -113,9 +122,13 @@ const createCustomerChart = () => {
                 datalabels: {
                     color: "white",
                     formatter: function (value) {
-                        return value >= 1000000
-                            ? "$" + (value / 1000000).toFixed(1) + "M"
-                            : "$" + (value / 1000).toFixed(1) + "K";
+                        const formatter = new Intl.NumberFormat('en-US', {
+                            style: 'currency',
+                            currency: 'USD',
+                            notation: 'compact',
+                            maximumFractionDigits: 1
+                        });
+                        return formatter.format(value);
                     },
                     backgroundColor: function (context) {
                         return context.dataset.borderColor;
@@ -153,7 +166,9 @@ new MutationObserver((mutations) => {
 watch(
     () => props.sales_by_customer,
     () => {
-        createCustomerChart();
+        nextTick(() => {
+            createCustomerChart();
+        });
     },
     { deep: true }
 );
@@ -170,7 +185,10 @@ onMounted(() => {
             <h2 class="text-lg sm:text-xl font-semibold mb-4">
                 Sales By Customer
             </h2>
-            <div class="h-full sm:h-[250px] overflow-y-auto">
+            <div v-if="!hasData" class="text-center py-12 text-base-content/50">
+                No data available
+            </div>
+            <div v-else class="h-full sm:h-[250px] overflow-y-auto">
                 <table
                     class="min-w-full bg-base-100 border border-base-300 rounded-lg overflow-hidden"
                 >
@@ -225,7 +243,10 @@ onMounted(() => {
             <h2 class="text-lg sm:text-xl font-semibold mb-4">
                 Sales By Customer
             </h2>
-            <div class="h-[250px]">
+            <div v-if="!hasData" class="text-center py-12 text-base-content/50">
+                No data available
+            </div>
+            <div v-else class="h-[250px]">
                 <canvas ref="customerChartRef"></canvas>
             </div>
         </div>

@@ -120,7 +120,13 @@ const createSalespersonChart = () => {
                 datalabels: {
                     color: "white",
                     formatter: function (value) {
-                        return "$" + (value / 1000).toFixed(1) + "K";
+                        const formatter = new Intl.NumberFormat('en-US', {
+                            style: 'currency',
+                            currency: 'USD',
+                            notation: 'compact',
+                            maximumFractionDigits: 1
+                        });
+                        return formatter.format(value);
                     },
                     backgroundColor: function (context) {
                         return context.dataset.borderColor;
