@@ -15,4 +15,14 @@ class Location extends Model
     {
         return $this->hasMany(OpenOrder::class, 'location', 'location');
     }
+
+    public function accountReceivables()
+    {
+        return $this->hasMany(AccountReceivable::class, 'location', 'location');
+    }
+
+    public function inventories()
+    {
+        return $this->hasMany(Inventory::class, 'location', 'location');
+    }
 }

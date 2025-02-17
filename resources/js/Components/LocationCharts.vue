@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, watch, computed } from "vue";
+import { ref, onMounted, watch, computed, nextTick } from "vue";
 import { router, Link } from "@inertiajs/vue3";
 import Chart from "chart.js/auto";
 import theme from "daisyui/src/theming/themes";
@@ -12,6 +12,7 @@ const props = defineProps({
     location_chart_data: Object,
     top_sales_by_location: Object,
     month: String,
+    additional_filters: Object,
 });
 
 const locationChartRef = ref(null);
@@ -25,6 +26,10 @@ const numberFormatter = new Intl.NumberFormat("en-US", {
     currency: "USD",
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
+});
+
+const hasData = computed(() => {
+    return props.location_chart_data?.sales_by_location?.labels?.length > 0;
 });
 
 const getThemeColor = computed(() => {
@@ -50,11 +55,18 @@ const getThemeColor = computed(() => {
 });
 
 const createLocationChart = () => {
+    // Always destroy existing charts first
     if (locationChart) {
         locationChart.destroy();
+        locationChart = null;
     }
     if (gpLocationChart) {
         gpLocationChart.destroy();
+        gpLocationChart = null;
+    }
+
+    if (!hasData.value) {
+        return;
     }
 
     // Check if canvas elements exist before creating charts
@@ -99,8 +111,8 @@ const createLocationChart = () => {
 
     const chartOptions = {
         responsive: false,
-        width: 250, // Set specific width
-        height: 250, // Set specific height
+        width: 250,
+        height: 250,
         maintainAspectRatio: true,
         onHover: (event, elements) => {
             event.native.target.style.cursor = elements.length
@@ -115,17 +127,19 @@ const createLocationChart = () => {
                     props.location_chart_data.location_abbrevation_mapping[
                         location
                     ];
-                router.get(route("sales.index"), {
+                const filters = {
                     "filter[location]": locationId,
                     "filter[period]": props.month,
-                });
+                    ...props.additional_filters,
+                };
+                router.get(route("sales.index"), filters);
             }
         },
         plugins: {
             legend: {
                 labels: {
                     font: {
-                        size: 10, // Smaller legend labels
+                        size: 10,
                     },
                     boxWidth: 10,
                 },
@@ -169,6 +183,7 @@ const createLocationChart = () => {
         },
     };
 
+    // Create new charts
     locationChart = new Chart(locationChartRef.value, {
         type: "pie",
         data: chartData,
@@ -198,7 +213,9 @@ new MutationObserver((mutations) => {
 watch(
     () => props.location_chart_data,
     () => {
-        createLocationChart();
+        nextTick(() => {
+            createLocationChart();
+        });
     },
     { deep: true }
 );
@@ -216,7 +233,11 @@ onMounted(() => {
                 Sales By Location
             </h2>
             <div class="flex justify-center">
+                <div v-if="!hasData" class="text-center py-12 text-base-content/50">
+                    No data available
+                </div>
                 <canvas
+                    v-else
                     ref="locationChartRef"
                     width="250"
                     height="250"
@@ -228,7 +249,11 @@ onMounted(() => {
                 GP By Location
             </h2>
             <div class="flex justify-center">
+                <div v-if="!hasData" class="text-center py-12 text-base-content/50">
+                    No data available
+                </div>
                 <canvas
+                    v-else
                     ref="gpLocationChartRef"
                     width="250"
                     height="250"
@@ -239,7 +264,10 @@ onMounted(() => {
             <h2 class="text-lg sm:text-xl font-semibold mb-4">
                 Sales By Location
             </h2>
-            <div class="h-full sm:h-[250px] overflow-y-auto">
+            <div v-if="!hasData" class="text-center py-12 text-base-content/50">
+                No data available
+            </div>
+            <div v-else class="h-full sm:h-[250px] overflow-y-auto">
                 <table
                     class="min-w-full bg-base-100 border border-base-250 rounded-lg overflow-hidden"
                 >

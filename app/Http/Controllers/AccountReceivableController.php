@@ -23,8 +23,10 @@ class AccountReceivableController extends Controller
 
         $account_receivables = AccountReceivable::when($currentMonth, function ($query) use ($currentMonth) {
             $query->where('uploaded_for_month', $currentMonth);
-        })
-            ->paginate(8);
+        })->where('balance_due_amount', '>', 0)
+            ->with('locationModel')
+            ->paginate(8)
+            ->withQueryString();
 
         return Inertia::render('AccountReceivables/Index', [
             'account_receivables' => $account_receivables,

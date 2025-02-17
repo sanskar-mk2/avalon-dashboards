@@ -15,4 +15,9 @@ class OpenOrder extends Model
     {
         return $this->belongsTo(Location::class, 'location', 'location');
     }
+
+    public function accountReceivables()
+    {
+        return $this->hasMany(AccountReceivable::class, 'customer_no', 'customer_no');
+    }
 }

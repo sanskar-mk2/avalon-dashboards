@@ -24,6 +24,23 @@ const showDeleteModal = ref(false);
 
 const columns = [
     { key: "customer_no", label: "Customer No." },
+    {
+        key: "customer_name",
+        label: "Customer Name",
+        custom_value: (model) => {
+            if (model?.customer_name != null) {
+                return {
+                    component: Link,
+                    props: {
+                        href: route("customers.show", model.customer_name),
+                        class: "link",
+                    },
+                    children: model.customer_name,
+                };
+            }
+            return model?.customer_name ?? "-";
+        },
+    },
     { key: "balance_due_amount", label: "Balance Due", to_format: true },
     { key: "balance_age_1", label: "Current", to_format: true },
     { key: "balance_age_2", label: "31-60 Days", to_format: true },
@@ -32,7 +49,23 @@ const columns = [
     { key: "balance_age_5", label: "121-150 Days", to_format: true },
     { key: "balance_age_6", label: "151+ Days", to_format: true },
     { key: "credit_manager", label: "Credit Manager" },
-    { key: "location", label: "Location" },
+    {
+        key: "location",
+        label: "Location",
+        custom_value: (model) => {
+            if (model.location_model != null) {
+                return {
+                    component: Link,
+                    props: {
+                        href: route("locations.show", model.location_model.id),
+                        class: "link",
+                    },
+                    children: model.location_model.location_abbreviation,
+                };
+            }
+            return model.location;
+        },
+    },
 ];
 
 const breadcrumbs = [

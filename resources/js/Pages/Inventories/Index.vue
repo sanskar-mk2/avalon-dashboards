@@ -24,7 +24,23 @@ const showDeleteModal = ref(false);
 
 const columns = [
     { key: "fiscal_period", label: "Period" },
-    { key: "location", label: "Location" },
+    {
+        key: "location",
+        label: "Location",
+        custom_value: (model) => {
+            if (model.location_model != null) {
+                return {
+                    component: Link,
+                    props: {
+                        href: route("locations.show", model.location_model.id),
+                        class: "link",
+                    },
+                    children: model.location_model.location_abbreviation,
+                };
+            }
+            return model.location;
+        },
+    },
     { key: "item_no", label: "Item" },
     { key: "qty_on_hand", label: "Qty" },
     { key: "average_cost", label: "Avg Cost", to_format: true },

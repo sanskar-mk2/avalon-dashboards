@@ -51,8 +51,8 @@ class DashboardController extends Controller
     private function getCardsData($current_month, $default_month)
     {
         // Get previous month
-        $prev_month = date('Y-m-d', strtotime($current_month . '-1 month'));
-        $prev_default_month = date('Y-m-d', strtotime($default_month . '-1 month'));
+        $prev_month = date('Y-m-d', strtotime($current_month.'-1 month'));
+        $prev_default_month = date('Y-m-d', strtotime($default_month.'-1 month'));
 
         // Handle YTD for sales data
         if ($current_month === 'YTD') {
@@ -67,9 +67,9 @@ class DashboardController extends Controller
                         ->sum('ext_sales'),
                 ],
                 [
-                    'period' => ($current_year - 1) . ' YTD',
+                    'period' => ($current_year - 1).' YTD',
                     'total_amount' => Sale::whereYear('period', $current_year - 1)
-                        ->whereDate('period', '<=', date('Y-m-d', strtotime($end_date . ' -1 year')))
+                        ->whereDate('period', '<=', date('Y-m-d', strtotime($end_date.' -1 year')))
                         ->sum('ext_sales'),
                 ],
             ]);
@@ -80,17 +80,39 @@ class DashboardController extends Controller
                 ->select('period', DB::raw('SUM(ext_sales) as total_amount'))
                 ->orderBy('period', 'desc')
                 ->get();
+
+            // Ensure both months exist in collection
+            if (! $sales->contains('period', $current_month)) {
+                $sales->push(['period' => $current_month, 'total_amount' => 0]);
+            }
+            if (! $sales->contains('period', $prev_month)) {
+                $sales->push(['period' => $prev_month, 'total_amount' => 0]);
+            }
+
+            // Sort to ensure current month is first, prev month second
+            $sales = $sales->sortByDesc('period')->values();
         }
 
         // Open Orders data
-        $open_orders = OpenOrder::whereIn('uploaded_for_month', [$default_month, $prev_default_month])
+        $open_orders = OpenOrder::whereIn('uploaded_for_month', [$current_month === 'YTD' ? $default_month : $current_month, $prev_default_month])
             ->groupBy('uploaded_for_month')
             ->select('uploaded_for_month as period', DB::raw('SUM(ext_sales) as total_amount'))
             ->orderBy('uploaded_for_month', 'desc')
             ->get();
 
+        // Ensure both months exist in open orders
+        if (! $open_orders->contains('period', $current_month === 'YTD' ? $default_month : $current_month)) {
+            $open_orders->push(['period' => $current_month === 'YTD' ? $default_month : $current_month, 'total_amount' => 0]);
+        }
+        if (! $open_orders->contains('period', $prev_default_month)) {
+            $open_orders->push(['period' => $prev_default_month, 'total_amount' => 0]);
+        }
+
+        // Sort to ensure current month is first, prev month second
+        $open_orders = $open_orders->sortByDesc('period')->values();
+
         // Inventory data
-        $total_inventory = Inventory::whereIn('uploaded_for_month', [$default_month, $prev_default_month])
+        $total_inventory = Inventory::whereIn('uploaded_for_month', [$current_month === 'YTD' ? $default_month : $current_month, $prev_default_month])
             ->groupBy('uploaded_for_month')
             ->select(
                 'uploaded_for_month as period',
@@ -98,9 +120,19 @@ class DashboardController extends Controller
             )
             ->orderBy('uploaded_for_month', 'desc')
             ->get();
+        // Ensure both months exist in inventory
+        if (! $total_inventory->contains('period', $current_month === 'YTD' ? $default_month : $current_month)) {
+            $total_inventory->push(['period' => $current_month === 'YTD' ? $default_month : $current_month, 'total_amount' => 0]);
+        }
+        if (! $total_inventory->contains('period', $prev_default_month)) {
+            $total_inventory->push(['period' => $prev_default_month, 'total_amount' => 0]);
+        }
+
+        // Sort to ensure current month is first, prev month second
+        $total_inventory = $total_inventory->sortByDesc('period')->values();
 
         // Account Receivables data
-        $total_receivables = AccountReceivable::whereIn('uploaded_for_month', [$default_month, $prev_default_month])
+        $total_receivables = AccountReceivable::whereIn('uploaded_for_month', [$current_month === 'YTD' ? $default_month : $current_month, $prev_default_month])
             ->groupBy('uploaded_for_month')
             ->select(
                 'uploaded_for_month as period',
@@ -108,6 +140,17 @@ class DashboardController extends Controller
             )
             ->orderBy('uploaded_for_month', 'desc')
             ->get();
+
+        // Ensure both months exist in receivables
+        if (! $total_receivables->contains('period', $current_month === 'YTD' ? $default_month : $current_month)) {
+            $total_receivables->push(['period' => $current_month === 'YTD' ? $default_month : $current_month, 'total_amount' => 0]);
+        }
+        if (! $total_receivables->contains('period', $prev_default_month)) {
+            $total_receivables->push(['period' => $prev_default_month, 'total_amount' => 0]);
+        }
+
+        // Sort to ensure current month is first, prev month second
+        $total_receivables = $total_receivables->sortByDesc('period')->values();
 
         return [
             'sales' => $sales,
@@ -231,7 +274,7 @@ class DashboardController extends Controller
             'labels' => $salesperson_names->values()->all(),
             'datasets' => [
                 [
-                    'label' => $current_month === 'YTD' ? date('Y') . ' YTD' : $current_month,
+                    'label' => $current_month === 'YTD' ? date('Y').' YTD' : $current_month,
                     'data' => $salesperson_data->pluck('total_amount')->values()->all(),
                 ],
             ],
@@ -303,7 +346,7 @@ class DashboardController extends Controller
             'labels' => $customer_names->values()->all(),
             'datasets' => [
                 [
-                    'label' => $current_month === 'YTD' ? date('Y') . ' YTD' : $current_month,
+                    'label' => $current_month === 'YTD' ? date('Y').' YTD' : $current_month,
                     'data' => $customer_data->pluck('total_amount')->values()->all(),
                 ],
             ],

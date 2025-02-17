@@ -7,6 +7,9 @@ import { getSalesColumns } from "@/Config/salesColumns";
 import DashboardCards from "@/Components/DashboardCards.vue";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import MonthYearSelector from "@/Components/MonthYearSelector.vue";
+import Breadcrumbs from "@/Components/Breadcrumbs.vue";
+import SalespersonCharts from "@/Components/SalespersonCharts.vue";
+import CustomerCharts from "@/Components/CustomerCharts.vue";
 
 const props = defineProps({
     location: {
@@ -29,8 +32,22 @@ const props = defineProps({
         type: String,
         default: "",
     },
+    sales_by_salesperson: {
+        type: Object,
+        default: () => ({}),
+    },
+    top_sales_by_salesperson: {
+        type: Object,
+        default: () => ({}),
+    },
+    sales_by_customer: {
+        type: Object,
+        default: () => ({}),
+    },
+    top_sales_by_customer: {
+        type: Object,
+    },
 });
-
 const columns = getSalesColumns();
 
 const breadcrumbs = [
@@ -45,13 +62,7 @@ const breadcrumbs = [
     <AuthenticatedLayout>
         <template #header>
             <div class="flex w-full mr-4 justify-between items-center">
-                <h2 class="text-xl font-semibold leading-tight">
-                    <div class="breadcrumbs text-sm text-base-content">
-                        <ul>
-                            <li>Home</li>
-                        </ul>
-                    </div>
-                </h2>
+                <Breadcrumbs :breadcrumbs="breadcrumbs" />
                 <MonthYearSelector
                     v-if="availableMonths && currentMonth"
                     :available-months="availableMonths"
@@ -68,6 +79,25 @@ const breadcrumbs = [
                     :month="currentMonth"
                     :except="['inventory']"
                 />
+
+                <SalespersonCharts
+                    :sales_by_salesperson="sales_by_salesperson"
+                    :top_sales_by_salesperson="top_sales_by_salesperson"
+                    :month="currentMonth"
+                    :additional_filters="{
+                        'filter[location]': location.location,
+                    }"
+                />
+
+                <CustomerCharts
+                    :month="currentMonth"
+                    :sales_by_customer="sales_by_customer"
+                    :top_sales_by_customer="top_sales_by_customer"
+                    :additional_filters="{
+                        'filter[location]': location.location,
+                    }"
+                />
+
                 <div
                     class="mt-4 overflow-hidden bg-base-100 shadow-sm sm:rounded-lg"
                 >

@@ -2,6 +2,7 @@
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import { Head, Link } from "@inertiajs/vue3";
 import MonthYearSelector from "@/Components/MonthYearSelector.vue";
+import Breadcrumbs from "./Breadcrumbs.vue";
 
 const props = defineProps({
     title: {
@@ -33,27 +34,7 @@ const props = defineProps({
     <AuthenticatedLayout>
         <template #header>
             <div class="flex w-full mr-4 justify-between items-center">
-                <h2 class="text-lg sm:text-xl font-semibold leading-tight">
-                    <div
-                        class="breadcrumbs text-xs sm:text-sm text-base-content"
-                    >
-                        <ul>
-                            <li
-                                v-for="(crumb, index) in breadcrumbs"
-                                :key="index"
-                            >
-                                <template v-if="crumb.route">
-                                    <Link :href="route(crumb.route)">{{
-                                        crumb.label
-                                    }}</Link>
-                                </template>
-                                <template v-else>
-                                    {{ crumb.label }}
-                                </template>
-                            </li>
-                        </ul>
-                    </div>
-                </h2>
+                <Breadcrumbs :breadcrumbs="breadcrumbs" />
                 <MonthYearSelector
                     v-if="showMonthSelector && availableMonths && currentMonth"
                     :available-months="availableMonths"

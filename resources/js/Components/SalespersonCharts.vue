@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, watch, computed } from "vue";
+import { ref, onMounted, watch, computed, nextTick } from "vue";
 import { router, Link } from "@inertiajs/vue3";
 import Chart from "chart.js/auto";
 import theme from "daisyui/src/theming/themes";
@@ -12,6 +12,7 @@ const props = defineProps({
     sales_by_salesperson: Object,
     top_sales_by_salesperson: Object,
     month: String,
+    additional_filters: Object,
 });
 
 const salespersonChartRef = ref(null);
@@ -23,6 +24,10 @@ const numberFormatter = new Intl.NumberFormat("en-US", {
     currency: "USD",
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
+});
+
+const hasData = computed(() => {
+    return props.sales_by_salesperson?.labels?.length > 0;
 });
 
 const getThemeColor = computed(() => {
@@ -52,7 +57,7 @@ const createSalespersonChart = () => {
     }
 
     // Check if canvas element exists before creating chart
-    if (!salespersonChartRef.value) {
+    if (!salespersonChartRef.value || !hasData.value) {
         return;
     }
 
@@ -86,10 +91,12 @@ const createSalespersonChart = () => {
                         props.sales_by_salesperson.salesperson_mapping[
                             salesperson
                         ];
-                    router.get(route("sales.index"), {
+                    const filters = {
                         "filter[salesperson]": salespersonId,
                         "filter[period]": props.month,
-                    });
+                        ...props.additional_filters,
+                    };
+                    router.get(route("sales.index"), filters);
                 }
             },
             scales: {
@@ -151,7 +158,9 @@ new MutationObserver((mutations) => {
 watch(
     () => props.sales_by_salesperson,
     () => {
-        createSalespersonChart();
+        nextTick(() => {
+            createSalespersonChart();
+        });
     },
     { deep: true }
 );
@@ -168,7 +177,10 @@ onMounted(() => {
             <h2 class="text-lg sm:text-xl font-semibold mb-4">
                 Sales By Salesperson
             </h2>
-            <div class="h-full sm:h-[250px] overflow-y-auto">
+            <div v-if="!hasData" class="text-center py-12 text-base-content/50">
+                No data available
+            </div>
+            <div v-else class="h-full sm:h-[250px] overflow-y-auto">
                 <table
                     class="min-w-full bg-base-100 border border-base-300 rounded-lg overflow-hidden"
                 >
@@ -228,7 +240,10 @@ onMounted(() => {
             <h2 class="text-lg sm:text-xl font-semibold mb-4">
                 Sales By Salesperson
             </h2>
-            <div class="h-[250px]">
+            <div v-if="!hasData" class="text-center py-12 text-base-content/50">
+                No data available
+            </div>
+            <div v-else class="h-[250px]">
                 <!-- Fixed height container -->
                 <canvas ref="salespersonChartRef"></canvas>
             </div>

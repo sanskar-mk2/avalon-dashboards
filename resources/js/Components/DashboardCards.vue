@@ -13,6 +13,14 @@ const props = defineProps({
     },
 });
 
+const formatAmount = (amount) => {
+    if (!amount) return "0";
+    if (amount < 1000000) {
+        return Math.round(amount / 1000) + "K";
+    }
+    return (amount / 1000000).toFixed(2) + "M";
+};
+
 const sales_cards = computed(() => {
     const last_sales_month = props.cards_data.sales[0]?.period
         ? props.cards_data.sales[0].period === "YTD"
@@ -20,8 +28,8 @@ const sales_cards = computed(() => {
             : dayjs(props.cards_data.sales[0].period).format("MMM YYYY")
         : "No Data";
     const last_month_sales = props.cards_data.sales[0]?.total_amount
-        ? (props.cards_data.sales[0].total_amount / 1000000).toFixed(2) + "M"
-        : "0M";
+        ? formatAmount(props.cards_data.sales[0].total_amount)
+        : "0";
     const percent_change = props.cards_data.sales[1]?.total_amount
         ? ((props.cards_data.sales[0].total_amount -
               props.cards_data.sales[1].total_amount) /
@@ -41,9 +49,8 @@ const open_orders_cards = computed(() => {
         ? dayjs(props.cards_data.open_orders[0].period).format("MMM YYYY")
         : "No Data";
     const last_month_open_orders = props.cards_data.open_orders[0]?.total_amount
-        ? (props.cards_data.open_orders[0].total_amount / 1000000).toFixed(2) +
-          "M"
-        : "0M";
+        ? formatAmount(props.cards_data.open_orders[0].total_amount)
+        : "0";
     const percent_change = props.cards_data.open_orders[1]?.total_amount
         ? ((props.cards_data.open_orders[0].total_amount -
               props.cards_data.open_orders[1].total_amount) /
@@ -66,10 +73,8 @@ const inventory_cards = computed(() => {
         ? dayjs(props.cards_data.total_inventory[0].period).format("MMM YYYY")
         : "No Data";
     const total = props.cards_data.total_inventory[0]?.total_amount
-        ? (props.cards_data.total_inventory[0].total_amount / 1000000).toFixed(
-              2
-          ) + "M"
-        : "0M";
+        ? formatAmount(props.cards_data.total_inventory[0].total_amount)
+        : "0";
     const percent_change = props.cards_data.total_inventory[1]?.total_amount
         ? ((props.cards_data.total_inventory[0].total_amount -
               props.cards_data.total_inventory[1].total_amount) /
@@ -85,14 +90,15 @@ const inventory_cards = computed(() => {
 });
 
 const receivables_cards = computed(() => {
+    if (props.except.includes("receivables")) {
+        return null;
+    }
     const last_month = props.cards_data.total_receivables[0]?.period
         ? dayjs(props.cards_data.total_receivables[0].period).format("MMM YYYY")
         : "No Data";
     const total = props.cards_data.total_receivables[0]?.total_amount
-        ? (
-              props.cards_data.total_receivables[0].total_amount / 1000000
-          ).toFixed(2) + "M"
-        : "0M";
+        ? formatAmount(props.cards_data.total_receivables[0].total_amount)
+        : "0";
     const percent_change = props.cards_data.total_receivables[1]?.total_amount
         ? ((props.cards_data.total_receivables[0].total_amount -
               props.cards_data.total_receivables[1].total_amount) /
@@ -110,8 +116,9 @@ const receivables_cards = computed(() => {
 
 <template>
     <div
-        class="grid grid-cols-1 mx-4 sm:mx-0 sm:grid-cols-4 gap-4"
+        class="grid grid-cols-1 mx-4 sm:mx-0 gap-4"
         :class="{
+            'sm:grid-cols-4': except.length === 0,
             'sm:grid-cols-3': except.length === 1,
             'sm:grid-cols-2': except.length === 2,
             'sm:grid-cols-1': except.length === 3,
@@ -270,7 +277,7 @@ const receivables_cards = computed(() => {
             </div>
         </div>
 
-        <div class="stats shadow">
+        <div v-if="receivables_cards" class="stats shadow">
             <div class="stat">
                 <div class="stat-title text-[11px] sm:text-sm">
                     <Link

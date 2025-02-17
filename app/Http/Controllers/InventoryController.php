@@ -33,10 +33,12 @@ class InventoryController extends Controller
             'quantity_backorder',
             DB::raw('qty_on_hand * average_cost as amount_on_hand')
         )
+            ->with('locationModel')
             ->when($currentMonth, function ($query) use ($currentMonth) {
                 $query->where('uploaded_for_month', $currentMonth);
             })
-            ->paginate(8);
+            ->paginate(8)
+            ->withQueryString();
 
         return Inertia::render('Inventories/Index', [
             'inventories' => $inventories,

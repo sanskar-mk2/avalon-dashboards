@@ -53,12 +53,12 @@ class SaleController extends Controller
                     } else {
                         $query->where('period', $value);
                     }
-                })
+                }),
             ])
             ->with('salespersonModel', 'locationModel')
             ->defaultSort('-uploaded_for_month');
 
-        if (!$request->has('filter')) {
+        if (! $request->has('filter')) {
             $query->where('uploaded_for_month', $currentMonth);
         }
 
@@ -99,7 +99,7 @@ class SaleController extends Controller
         ]);
 
         $path = $request->file('file')->store('temp');
-        $uploaded_for_month = date('Y-m-d', strtotime($request->year . '-' . $request->month . '-01'));
+        $uploaded_for_month = date('Y-m-d', strtotime($request->year.'-'.$request->month.'-01'));
 
         // If replace is true, delete existing records for the month
         if ($request->boolean('replace')) {
@@ -109,7 +109,7 @@ class SaleController extends Controller
         // Set UTF-8 encoding for reading CSV
         $collection = (new FastExcel)
             ->configureCsv(',')
-            ->import(storage_path('app/private/' . $path));
+            ->import(storage_path('app/private/'.$path));
 
         // Split collection into chunks of 1000 records and save to DB
         $chunks = $collection->chunk(1000);
@@ -149,7 +149,7 @@ class SaleController extends Controller
                     'qty' => $fields[18] ?? null,
                     'ext_sales' => $fields[19] ?? null,
                     'ext_cost' => $fields[20] ?? null,
-                    'period' => $fields[21] ? date('Y-m-d', strtotime($fields[21] . '01')) : null,
+                    'period' => $fields[21] ? date('Y-m-d', strtotime($fields[21].'01')) : null,
                     'order_status' => $sanitizeString($fields[22] ?? null),
                     'advertising_source' => $sanitizeString($fields[23] ?? null),
                     'finance_co_rate' => $fields[24] ?? null,
@@ -171,7 +171,7 @@ class SaleController extends Controller
         }
 
         // Delete temporary file
-        unlink(storage_path('app/private/' . $path));
+        unlink(storage_path('app/private/'.$path));
 
         return redirect()->route('sales.index')->with('success', 'Sales records imported successfully');
     }
@@ -225,7 +225,7 @@ class SaleController extends Controller
             'year' => 'required|integer|min:2000',
         ]);
 
-        $uploaded_for_month = date('Y-m-d', strtotime($request->year . '-' . $request->month . '-01'));
+        $uploaded_for_month = date('Y-m-d', strtotime($request->year.'-'.$request->month.'-01'));
 
         $exists = Sale::where('uploaded_for_month', $uploaded_for_month)->exists();
 

@@ -27,6 +27,7 @@ class OpenOrderController extends Controller
             'order_date',
             'customer_no',
             'customer_name',
+            'salesperson',
             'item_no',
             'item_desc',
             'qty',
@@ -35,7 +36,7 @@ class OpenOrderController extends Controller
             'period',
             'mfg_code',
             'requested_ship_date'
-        )
+        )->with('locationModel', 'salespersonModel')
             ->when($currentMonth, function ($query) use ($currentMonth) {
                 $query->where('uploaded_for_month', $currentMonth);
             })

@@ -71,6 +71,15 @@ export const getSalesColumns = () => [
     { key: "ext_sales", label: "Ext Sales", to_format: true },
     { key: "ext_cost", label: "Ext Cost", to_format: true },
     {
+        key: "ext_profit",
+        label: "GP %",
+        custom_value: (model) => {
+            const gp =
+                ((model.ext_sales - model.ext_cost) / model.ext_sales) * 100;
+            return isNaN(gp) ? "-" : gp.toFixed(2) + "%";
+        },
+    },
+    {
         key: "period",
         label: "Period",
         custom_value: (model) => {

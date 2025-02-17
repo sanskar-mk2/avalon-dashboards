@@ -6,5 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Inventory extends Model
 {
-    //
+    public function locationModel()
+    {
+        return $this->belongsTo(Location::class, 'location', 'location');
+    }
 }

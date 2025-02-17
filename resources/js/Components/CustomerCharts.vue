@@ -12,6 +12,7 @@ const props = defineProps({
     sales_by_customer: Object,
     top_sales_by_customer: Object,
     month: String,
+    additional_filters: Object,
 });
 
 const customerChartRef = ref(null);
@@ -85,6 +86,7 @@ const createCustomerChart = () => {
                     router.get(route("sales.index"), {
                         "filter[customer_name]": customer,
                         "filter[period]": props.month,
+                        ...props.additional_filters,
                     });
                 }
             },
