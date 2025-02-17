@@ -7,6 +7,10 @@ import dayjs from "dayjs";
 const props = defineProps({
     cards_data: Object,
     month: String,
+    except: {
+        type: Array,
+        default: () => [],
+    },
 });
 
 const sales_cards = computed(() => {
@@ -55,6 +59,9 @@ const open_orders_cards = computed(() => {
 });
 
 const inventory_cards = computed(() => {
+    if (props.except.includes("inventory")) {
+        return null;
+    }
     const last_month = props.cards_data.total_inventory[0]?.period
         ? dayjs(props.cards_data.total_inventory[0].period).format("MMM YYYY")
         : "No Data";
@@ -102,7 +109,14 @@ const receivables_cards = computed(() => {
 </script>
 
 <template>
-    <div class="grid grid-cols-1 mx-4 sm:mx-0 sm:grid-cols-4 gap-4">
+    <div
+        class="grid grid-cols-1 mx-4 sm:mx-0 sm:grid-cols-4 gap-4"
+        :class="{
+            'sm:grid-cols-3': except.length === 1,
+            'sm:grid-cols-2': except.length === 2,
+            'sm:grid-cols-1': except.length === 3,
+        }"
+    >
         <div class="stats shadow">
             <div class="stat">
                 <div class="stat-title text-[11px] sm:text-sm">
@@ -207,7 +221,7 @@ const receivables_cards = computed(() => {
             </div>
         </div>
 
-        <div class="stats shadow">
+        <div class="stats shadow" v-if="inventory_cards">
             <div class="stat">
                 <div class="stat-title text-[11px] sm:text-sm">
                     <Link

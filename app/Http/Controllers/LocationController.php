@@ -2,8 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AccountReceivable;
 use App\Models\Location;
+use App\Models\OpenOrder;
+use App\Models\Sale;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Rap2hpoutre\FastExcel\FastExcel;
 
@@ -43,7 +47,7 @@ class LocationController extends Controller
         // Set UTF-8 encoding for reading CSV
         $collection = (new FastExcel)
             ->configureCsv(',')
-            ->import(storage_path('app/private/'.$path));
+            ->import(storage_path('app/private/' . $path));
 
         // Split collection into chunks of 1000 records and save to DB
         $chunks = $collection->chunk(1000);
@@ -71,9 +75,72 @@ class LocationController extends Controller
         }
 
         // Delete temporary file
-        unlink(storage_path('app/private/'.$path));
+        unlink(storage_path('app/private/' . $path));
 
         return redirect()->route('locations.index')->with('success', 'Locations imported successfully');
+    }
+
+    private function getCardsData($current_month, $default_month, $location)
+    {
+        // Get previous month
+        $prev_month = date('Y-m-d', strtotime($current_month . '-1 month'));
+        $prev_default_month = date('Y-m-d', strtotime($default_month . '-1 month'));
+
+        // Handle YTD for sales data
+        if ($current_month === 'YTD') {
+            $current_year = date('Y');
+            $end_date = date('Y-m-d');
+
+            // Sales data for YTD
+            $sales = collect([
+                [
+                    'period' => 'YTD',
+                    'total_amount' => Sale::whereLocation($location)
+                        ->whereYear('period', $current_year)
+                        ->sum('ext_sales'),
+                ],
+                [
+                    'period' => ($current_year - 1) . ' YTD',
+                    'total_amount' => Sale::whereLocation($location)
+                        ->whereYear('period', $current_year - 1)
+                        ->whereDate('period', '<=', date('Y-m-d', strtotime($end_date . ' -1 year')))
+                        ->sum('ext_sales'),
+                ],
+            ]);
+        } else {
+            // Regular monthly sales data
+            $sales = Sale::whereLocation($location)
+                ->whereIn('period', [$current_month, $prev_month])
+                ->groupBy('period')
+                ->select('period', DB::raw('SUM(ext_sales) as total_amount'))
+                ->orderBy('period', 'desc')
+                ->get();
+        }
+
+        // Open Orders data
+        $open_orders = OpenOrder::whereLocation($location)
+            ->whereIn('uploaded_for_month', [$default_month, $prev_default_month])
+            ->groupBy('uploaded_for_month')
+            ->select('uploaded_for_month as period', DB::raw('SUM(ext_sales) as total_amount'))
+            ->orderBy('uploaded_for_month', 'desc')
+            ->get();
+
+        // Account Receivables data
+        $total_receivables = AccountReceivable::whereLocation($location)
+            ->whereIn('uploaded_for_month', [$default_month, $prev_default_month])
+            ->groupBy('uploaded_for_month')
+            ->select(
+                'uploaded_for_month as period',
+                DB::raw('SUM(balance_due_amount) as total_amount')
+            )
+            ->orderBy('uploaded_for_month', 'desc')
+            ->get();
+
+        return [
+            'sales' => $sales,
+            'open_orders' => $open_orders,
+            'total_receivables' => $total_receivables,
+        ];
     }
 
     /**
@@ -81,10 +148,11 @@ class LocationController extends Controller
      */
     public function show(Location $location)
     {
+
         $sales = $location->sales()
             ->select(
                 'company',
-                'location', 
+                'location',
                 'order_no',
                 'order_date',
                 'customer_name',
@@ -102,10 +170,27 @@ class LocationController extends Controller
             )
             ->with('salespersonModel')
             ->paginate(8);
+        // Get available months from all tables
 
+        $available_months = collect([
+            Sale::distinct()->pluck('uploaded_for_month'),
+            OpenOrder::distinct()->pluck('uploaded_for_month'),
+            AccountReceivable::distinct()->pluck('uploaded_for_month'),
+        ])->flatten()->unique()->sort()->values();
+
+        // Get latest uploaded month from all tables if no month selected
+        $default_month = max([
+            Sale::max('uploaded_for_month'),
+            OpenOrder::max('uploaded_for_month'),
+            AccountReceivable::max('uploaded_for_month'),
+        ]);
+        $current_month = request()->get('month') ?? $default_month;
         return Inertia::render('Locations/Show', [
             'location' => $location,
             'sales' => $sales,
+            'cards_data' => $this->getCardsData($current_month, $default_month, $location->location),
+            'availableMonths' => $available_months,
+            'currentMonth' => $current_month,
         ]);
     }
 

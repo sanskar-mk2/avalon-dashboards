@@ -20,8 +20,8 @@ const props = defineProps({
 const selectedMonth = ref(props.currentMonth);
 
 const formatMonthDisplay = (month) => {
-    if (month === 'YTD') {
-        return 'Year to Date';
+    if (month === "YTD") {
+        return "Year to Date";
     }
     return new Date(month).toLocaleDateString("en-US", {
         month: "long",
@@ -30,8 +30,11 @@ const formatMonthDisplay = (month) => {
 };
 
 watch(selectedMonth, (newValue) => {
+    // Get current route parameters
+    const currentParams = route().params;
+
     router.get(
-        route(route().current()),
+        route(route().current(), currentParams),
         { month: newValue },
         {
             preserveState: true,
