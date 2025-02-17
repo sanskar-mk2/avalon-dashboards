@@ -134,6 +134,8 @@ const createInventoryChart = () => {
                     display: function (context) {
                         return context.dataset.data[context.dataIndex] !== 0;
                     },
+                    anchor: "end",
+                    align: "end",
                 },
             },
         },
