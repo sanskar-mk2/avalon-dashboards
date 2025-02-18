@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\OpenOrder;
+use App\Http\Requests\UpdateOpenOrderRequest;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Rap2hpoutre\FastExcel\FastExcel;
@@ -22,6 +23,7 @@ class OpenOrderController extends Controller
         $currentMonth = $request->get('month', $availableMonths->first());
 
         $open_orders = OpenOrder::select(
+            'id',
             'location',
             'order_no',
             'order_date',
@@ -165,15 +167,21 @@ class OpenOrderController extends Controller
      */
     public function edit(OpenOrder $openOrder)
     {
-        //
+        return Inertia::render('OpenOrders/Edit', [
+            'openOrder' => $openOrder
+        ]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, OpenOrder $openOrder)
+    public function update(UpdateOpenOrderRequest $request, OpenOrder $openOrder)
     {
-        //
+        $validated = $request->validated();
+        $openOrder->update($validated);
+
+        return redirect()->route('open_orders.index')
+            ->with('success', 'Open order updated successfully');
     }
 
     /**

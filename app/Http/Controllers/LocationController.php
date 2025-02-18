@@ -197,6 +197,7 @@ class LocationController extends Controller
 
         $sales = $location->sales()
             ->select(
+                'id',
                 'company',
                 'location',
                 'order_no',

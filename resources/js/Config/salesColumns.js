@@ -3,6 +3,20 @@ import dayjs from "dayjs";
 
 export const getSalesColumns = () => [
     {
+        key: "actions",
+        label: "Actions",
+        custom_value: (model) => {
+            return {
+                component: Link,
+                props: {
+                    href: route('sales.edit', model.id),
+                    class: "btn btn-sm btn-primary",
+                },
+                children: "Edit",
+            };
+        },
+    },
+    {
         key: "location",
         label: "Location",
         custom_value: (model) => {

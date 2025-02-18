@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Sale;
+use App\Http\Requests\UpdateSaleRequest;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -26,6 +27,7 @@ class SaleController extends Controller
 
         $query = QueryBuilder::for(Sale::class)
             ->select(
+                'id',
                 'company',
                 'location',
                 'order_no',
@@ -189,15 +191,21 @@ class SaleController extends Controller
      */
     public function edit(Sale $sale)
     {
-        //
+        return Inertia::render('Sales/Edit', [
+            'sale' => $sale
+        ]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Sale $sale)
+    public function update(UpdateSaleRequest $request, Sale $sale)
     {
-        //
+        $validated = $request->validated();
+        $sale->update($validated);
+
+        return redirect()->route('sales.index')
+            ->with('success', 'Sale updated successfully');
     }
 
     /**

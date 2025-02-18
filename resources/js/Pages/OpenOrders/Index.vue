@@ -24,6 +24,20 @@ const props = defineProps({
 const showDeleteModal = ref(false);
 
 const columns = [
+{
+        key: "actions",
+        label: "Actions",
+        custom_value: (model) => {
+            return {
+                component: Link,
+                props: {
+                    href: route('open_orders.edit', model.id),
+                    class: "btn btn-sm btn-primary",
+                },
+                children: "Edit",
+            };
+        },
+    },
     {
         key: "location",
         label: "Location",

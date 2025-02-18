@@ -28,6 +28,7 @@ class CustomerController extends Controller
 
         $sales = Sale::where('customer_name', $customer_name)
             ->select(
+                'id',
                 'company',
                 'location',
                 'order_no',

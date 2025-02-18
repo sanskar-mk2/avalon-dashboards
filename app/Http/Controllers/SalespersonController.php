@@ -309,6 +309,7 @@ class SalespersonController extends Controller
 
         $sales = $salesperson->sales()
             ->select(
+                'id',
                 'company',
                 'location',
                 'order_no',
