@@ -108,5 +108,19 @@ export const getSalesColumns = () => [
         },
     },
     { key: "requested_ship_date", label: "Requested Ship Date" },
-    { key: "mfg_code", label: "Mfg Code" },
+    {
+        key: "mfg_code",
+        label: "Mfg Code",
+        custom_value: (model) => {
+            if (!model.mfg_code) return "-";
+            return {
+                component: Link,
+                props: {
+                    href: route("manufacturers.show", model.mfg_code),
+                    class: "link",
+                },
+                children: model.mfg_code,
+            };
+        },
+    },
 ];

@@ -44,6 +44,8 @@ class DashboardController extends Controller
             'top_sales_by_salesperson' => $this->getTopSalesBySalesperson($current_month),
             'sales_by_customer' => $this->getSalesByCustomer($current_month),
             'top_sales_by_customer' => $this->getTopSalesByCustomer($current_month),
+            'sales_by_mfg_code' => $this->getSalesByMfgCode($current_month),
+            'top_sales_by_mfg_code' => $this->getTopSalesByMfgCode($current_month),
             'us_warehouse_inventory' => $this->getUSWarehouseInventory($current_month, $default_month),
         ]);
     }
@@ -51,8 +53,8 @@ class DashboardController extends Controller
     private function getCardsData($current_month, $default_month)
     {
         // Get previous month
-        $prev_month = date('Y-m-d', strtotime($current_month.'-1 month'));
-        $prev_default_month = date('Y-m-d', strtotime($default_month.'-1 month'));
+        $prev_month = date('Y-m-d', strtotime($current_month . '-1 month'));
+        $prev_default_month = date('Y-m-d', strtotime($default_month . '-1 month'));
 
         // Handle YTD for sales data
         if ($current_month === 'YTD') {
@@ -67,9 +69,9 @@ class DashboardController extends Controller
                         ->sum('ext_sales'),
                 ],
                 [
-                    'period' => ($current_year - 1).' YTD',
+                    'period' => ($current_year - 1) . ' YTD',
                     'total_amount' => Sale::whereYear('period', $current_year - 1)
-                        ->whereDate('period', '<=', date('Y-m-d', strtotime($end_date.' -1 year')))
+                        ->whereDate('period', '<=', date('Y-m-d', strtotime($end_date . ' -1 year')))
                         ->sum('ext_sales'),
                 ],
             ]);
@@ -274,7 +276,7 @@ class DashboardController extends Controller
             'labels' => $salesperson_names->values()->all(),
             'datasets' => [
                 [
-                    'label' => $current_month === 'YTD' ? date('Y').' YTD' : $current_month,
+                    'label' => $current_month === 'YTD' ? date('Y') . ' YTD' : $current_month,
                     'data' => $salesperson_data->pluck('total_amount')->values()->all(),
                 ],
             ],
@@ -346,7 +348,7 @@ class DashboardController extends Controller
             'labels' => $customer_names->values()->all(),
             'datasets' => [
                 [
-                    'label' => $current_month === 'YTD' ? date('Y').' YTD' : $current_month,
+                    'label' => $current_month === 'YTD' ? date('Y') . ' YTD' : $current_month,
                     'data' => $customer_data->pluck('total_amount')->values()->all(),
                 ],
             ],
@@ -366,6 +368,67 @@ class DashboardController extends Controller
         return $query->groupBy('customer_name')
             ->select(
                 'customer_name',
+                DB::raw('SUM(ext_sales) as total_sales')
+            )
+            ->orderBy('total_sales', 'desc')
+            ->take(10)
+            ->get();
+    }
+
+    private function getSalesByMfgCode($current_month)
+    {
+        $query = Sale::query();
+
+        if ($current_month === 'YTD') {
+            $query->whereYear('period', date('Y'));
+        } else {
+            $query->where('period', $current_month);
+        }
+
+        $sales_by_mfg_code = $query->groupBy('mfg_code')
+            ->select(
+                'mfg_code',
+                DB::raw('SUM(ext_sales) as total_amount')
+            )
+            ->orderBy('total_amount', 'desc')
+            ->get();
+
+        $mfg_code_data = $sales_by_mfg_code
+            ->map(function ($sale) {
+                return [
+                    'name' => $sale->mfg_code,
+                    'total_amount' => $sale->total_amount,
+                ];
+            })
+            ->take(10)
+            ->values();
+
+        $mfg_code_names = $mfg_code_data->pluck('name');
+
+        return [
+            'labels' => $mfg_code_names->values()->all(),
+            'datasets' => [
+                [
+                    'label' => $current_month === 'YTD' ? date('Y') . ' YTD' : $current_month,
+                    'data' => $mfg_code_data->pluck('total_amount')->values()->all(),
+                ],
+            ],
+        ];
+    }
+
+    private function getTopSalesByMfgCode($current_month)
+    {
+        $query = Sale::query();
+
+        if ($current_month === 'YTD') {
+            $query->whereYear('period', date('Y'));
+        } else {
+            $query->where('period', $current_month);
+        }
+
+        return $query->groupBy('mfg_code')
+            ->select(
+                'mfg_code',
                 DB::raw('SUM(ext_sales) as total_sales')
             )
             ->orderBy('total_sales', 'desc')

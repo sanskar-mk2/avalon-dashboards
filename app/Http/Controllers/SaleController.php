@@ -49,6 +49,7 @@ class SaleController extends Controller
                 'location',
                 'salesperson',
                 'customer_name',
+                'mfg_code',
                 AllowedFilter::callback('period', function (Builder $query, $value) {
                     if ($value === 'YTD') {
                         $query->whereYear('period', date('Y'));

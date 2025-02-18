@@ -5,6 +5,7 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\LocationController;
+use App\Http\Controllers\ManufacturerController;
 use App\Http\Controllers\OpenOrderController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SaleController;
@@ -26,6 +27,7 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::get('/customers/{customer_name}', [CustomerController::class, 'show'])->name('customers.show');
+    Route::get('/manufacturers/{mfg_code}', [ManufacturerController::class, 'show'])->name('manufacturers.show');
     Route::resource('sales', SaleController::class);
     Route::delete('/sales', [SaleController::class, 'deleteAll'])->name('sales.deleteAll');
     Route::resource('open_orders', OpenOrderController::class);

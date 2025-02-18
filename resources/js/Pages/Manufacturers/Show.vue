@@ -8,13 +8,14 @@ import DashboardCards from "@/Components/DashboardCards.vue";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import MonthYearSelector from "@/Components/MonthYearSelector.vue";
 import Breadcrumbs from "@/Components/Breadcrumbs.vue";
+import LocationCharts from "@/Components/Charts/LocationCharts.vue";
 import SalespersonCharts from "@/Components/SalespersonCharts.vue";
 import CustomerCharts from "@/Components/Charts/CustomerCharts.vue";
 
 const props = defineProps({
-    location: {
-        type: Object,
-        default: () => ({}),
+    mfg_code: {
+        type: String,
+        required: true,
     },
     sales: {
         type: Object,
@@ -32,6 +33,14 @@ const props = defineProps({
         type: String,
         default: "",
     },
+    sales_by_location: {
+        type: Object,
+        default: () => ({}),
+    },
+    top_sales_by_location: {
+        type: Object,
+        default: () => ({}),
+    },
     sales_by_salesperson: {
         type: Object,
         default: () => ({}),
@@ -46,16 +55,19 @@ const props = defineProps({
     },
     top_sales_by_customer: {
         type: Object,
+        default: () => ({}),
     },
 });
+
 const columns = getSalesColumns();
 
 const breadcrumbs = [
     { label: "Home", route: "dashboard" },
-    { label: "Locations", route: "locations.index" },
-    { label: props.location.location_abbreviation },
+    { label: "Sales", route: "sales.index" },
+    { label: props.mfg_code },
 ];
 </script>
+
 <template>
     <Head title="Dashboard" />
 
@@ -77,7 +89,16 @@ const breadcrumbs = [
                 <DashboardCards
                     :cards_data="cards_data"
                     :month="currentMonth"
-                    :except="['inventory']"
+                    :except="['inventory', 'receivables']"
+                />
+
+                <LocationCharts
+                    :location_chart_data="sales_by_location"
+                    :top_sales_by_location="top_sales_by_location"
+                    :month="currentMonth"
+                    :additional_filters="{
+                        'filter[mfg_code]': mfg_code,
+                    }"
                 />
 
                 <SalespersonCharts
@@ -85,17 +106,14 @@ const breadcrumbs = [
                     :top_sales_by_salesperson="top_sales_by_salesperson"
                     :month="currentMonth"
                     :additional_filters="{
-                        'filter[location]': location.location,
+                        'filter[mfg_code]': mfg_code,
                     }"
                 />
 
                 <CustomerCharts
-                    :month="currentMonth"
                     :sales_by_customer="sales_by_customer"
                     :top_sales_by_customer="top_sales_by_customer"
-                    :additional_filters="{
-                        'filter[location]': location.location,
-                    }"
+                    :month="currentMonth"
                 />
 
                 <div

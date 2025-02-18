@@ -8,8 +8,8 @@ import DashboardCards from "@/Components/DashboardCards.vue";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import MonthYearSelector from "@/Components/MonthYearSelector.vue";
 import Breadcrumbs from "@/Components/Breadcrumbs.vue";
-import LocationCharts from "@/Components/LocationCharts.vue";
-import CustomerCharts from "@/Components/CustomerCharts.vue";
+import LocationCharts from "@/Components/Charts/LocationCharts.vue";
+import CustomerCharts from "@/Components/Charts/CustomerCharts.vue";
 
 const props = defineProps({
     salesperson: {
