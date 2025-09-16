@@ -1,0 +1,1 @@
+import{g as o,o as s,u as t}from"./app-B2GYkFaq.js";const e="/build/assets/logo-YohJLIS3.png",n=["src"],_={__name:"ApplicationLogo",setup(c){return(a,r)=>(s(),o("img",{src:t(e),alt:"Avalon Logo"},null,8,n))}};export{_};
